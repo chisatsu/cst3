@@ -3,14 +3,16 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>三択クイズ</title>
+<link rel="stylesheet" href="style.css">
+<title>ちーちゃんクイズ</title>
 </head>
 <body>
-<h1>三択クイズ</h1>
+<div style="text-align:center;">
+<h1>ちーちゃんクイズ</h1>
 <hr>
 <h2>問題</h2>
 <div id="text_q"></div>
-<h2>選択</h2>
+<h2 id="selectHead">選択</h2>
 <div id="text_s"></div>
 <h2>解答</h2>
 <div id="text_a"></div>
@@ -28,6 +30,22 @@ qa[6] = ["トンボを英語にするとどれ？","fly","dragonfly","butterfly"
 qa[7] = ["ヒトデを英語にするとどれ？","starfish","starshell","starmine",1];
 qa[8] = ["恒星の中で最も明るい星は？","デネブ","スピカ","シリウス",3];
 qa[9] = ["惑星の中で最も重たいのはどれ？","太陽","木星","天王星",2];
+
+
+//シャッフルアルゴリズム
+var arr = [0,1,2,3,4,5,6,7,8,9];
+var a = arr.length;
+while (a) {
+    var j = Math.floor( Math.random() * a );
+    var t = arr[--a];
+    arr[a] = arr[j];
+    arr[j] = t;
+}
+qb = new Array();
+var b;
+for (b=0;b<=9;b++) {
+    qb[0] = qa[arr[b]];
+}
 
 //初期設定
 q_sel = 3; //選択肢の数
@@ -52,7 +70,7 @@ function quiz() {
 	s = "";
 	for (n=1;n<=q_sel;n++) {
 		if (qa[count][n] != "") {
-			s += "【<a href='javascript:anser(" + n + ")'>" + n + "：" + qa[count][n] + "</a>】";
+			s += "【<a href='javascript:anser(" + n + ")'>" + n + "：" + qa[count][n] + "</a>】<br>";
 		}
 	}
 	document.getElementById("text_s").innerHTML = s;
@@ -78,7 +96,7 @@ function anser(num) {
 		quiz();
 	} else {
 		//終了
-		s = "<table border='2'><caption>成績発表</caption>";
+		s = "<table border='2' align='center'><caption>成績発表</caption>";
 		//1行目
 		s += "<tr><th>問題</th>";
 		for (n=0;n<qa.length;n++) {
@@ -94,12 +112,13 @@ function anser(num) {
 		s += "</table>";
 		document.getElementById("text_q").innerHTML = s;
 		//次の選択肢
-		s = "【<a href='javascript:history.back()'>前のページに戻る</a>】";
-		s += "【<a href='javascript:setReady()'>同じ問題を最初から</a>】";
-		s += "【<a href=''>次の問題に進む</a>】";
+		s = "";
+		s += "【<a href='javascript:setReady()'>最初から</a>】";
+		s += "";
 		document.getElementById("text_s").innerHTML = s;
 	}
 }
 </script>
+</div>
 </body>
 </html>
