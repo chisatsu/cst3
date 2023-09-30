@@ -1,0 +1,61 @@
+body {
+  font-size: 17px;
+  font-family: -system-ui, sans-serif;
+  line-height: 1.5;
+  letter-space: -0.01em;
+  margin: 0;
+  padding: 2em;
+  color: #444;
+  background: #cfcfcf;
+  -webkit-font-smoothing: antialiased;
+}
+
+#container {
+  height: 300px;
+  width: 300px;
+  overflow-y: scroll;
+  scroll-timeline: --scroll-timeline y;
+  /* Firefox supports the older "vertical" syntax */
+  scroll-timeline: --scroll-timeline vertical;
+  position: relative;
+  background: #fff;
+  padding: 0 1em;
+  margin: auto;
+  border-radius: .3em;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+}
+
+#up, #down {
+  position: sticky;
+  display: flex;
+  justify-content: center;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 1.5em;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  animation-name: reveal;
+  animation-duration: 1ms; /* Firefox requires this to apply the animation */
+  animation-timeline: --scroll-timeline;
+}
+
+#up {
+  top: 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+#down {
+  bottom: 0;
+  animation-direction: reverse;
+  border-top: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+@keyframes reveal {
+  0% {
+    opacity: 0;
+  }
+  2% {
+    opacity: 1;
+  }
+}
