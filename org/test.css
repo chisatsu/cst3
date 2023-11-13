@@ -1,0 +1,262 @@
+
+/*--------------------------------------  
+　   ベーススタイル  
+---------------------------------------*/  
+
+/* 上下中央にしたい親要素に適用してください */
+.parent {
+  display: flex;
+  justify-content: center;/* 左右中央を指定しています */
+  align-items: center;/* 上下中央を指定しています */
+  height: 80vh;/* 高さは適宜変更してください */
+}
+
+/* 外枠 */
+.flex_test-box {
+    background-color: #eee;     /* 背景色指定 */
+    padding:  10px;             /* 余白指定 */
+}
+
+/* 内枠 */
+.flex_test-item {
+    display: flex;
+    padding: 5px;
+    color:  #fff;               /* 文字色 */
+    margin:  5px;              /* 外側の余白 */
+    border-radius:  5px;        /* 角丸指定 */
+}
+
+/*--------------------------------------  
+　   ボタン  
+---------------------------------------*/  
+
+/* 角丸オレンジボタン */
+.btn--orange,
+a.btn--orange {
+  color: #fff;
+  background-color: #eb6100;
+}
+.btn--orange:hover,
+a.btn--orange:hover {
+  color: #fff;
+  background: #f56500;
+}
+
+/* 角丸白ボタン */
+a.btn_03 {
+	display: block;
+	text-align: center;
+	vertical-align: middle;
+	text-decoration: none;
+	width: 50px;
+	margin: auto;
+	padding: 1rem 4rem;
+	font-weight: bold;
+	border: 2px solid #27acd9;
+	color: #27acd9;
+	border-radius: 100vh;
+	transition: 0.5s;
+}
+a.btn_03:hover {
+	color: #fff;
+	background: #27acd9;
+}
+
+/* 角丸青ボタン */
+a.btn_04 {
+	display: block;
+	text-align: center;
+	vertical-align: middle;
+	text-decoration: none;
+	width: 50px;
+	margin: auto;
+	padding: 1rem 4rem;
+	font-weight: bold;
+	border: 2px solid #27acd9;
+	background: #27acd9;
+	color: #fff;
+	border-radius: 100vh;
+	transition: 0.5s;
+}
+a.btn_04:hover {
+	color: #27acd9;
+	background: #fff;
+}
+
+/* 矢印付きボタン */
+a.btn_12 {
+	display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+	text-align: center;
+	text-decoration: none;
+	width: 60px;
+	margin: 10px;
+	padding: 0.5rem 2rem 0.5rem 1.5rem;
+	font-weight: bold;
+	background: #27acd9;
+	color: #fff;
+	border-radius: 100vh;
+	position: relative;
+	transition: 0.5s;
+}
+a.btn_12::before {
+	content: '';
+	width: 7px;
+	height: 7px;
+	border-top: 2px solid #fff;
+	border-right: 2px solid #fff;
+	transform: rotate(45deg);
+}
+a.btn_12:hover {
+	background: #44c6f2;
+	color: #fff;
+}
+a.btn_13 {
+	display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+	text-align: center;
+	text-decoration: none;
+	width: 60px;
+	margin: 10px;
+	padding: 0.5rem 2rem 0.5rem 1.5rem;
+	font-weight: bold;
+	background: #cccccc;
+	color: #fff;
+	border-radius: 100vh;
+	position: relative;
+	transition: 0.5s;
+}
+a.btn_13::before {
+	content: '';
+	width: 7px;
+	height: 7px;
+	border-top: 2px solid #fff;
+	border-right: 2px solid #fff;
+	transform: rotate(45deg);
+}
+a.btn_13:hover {
+	background: #aaaaaa;
+	color: #fff;
+}
+
+
+/*--------------------------------------  
+　   表形式（没）  
+---------------------------------------*/  
+
+.container {
+    border: 2px solid #ccc;
+    background-color: #E4EDE8;
+    margin-bottom: 30px;
+    display: flex;
+}
+
+.box {
+    color: #fff;
+    font-weight: bold;
+    text-align: center;
+    line-height: 100px;
+    background-color: #3CB371;
+    margin: 20px;
+    width: 100px;
+}
+
+
+/*--------------------------------------  
+　   ラベル  
+---------------------------------------*/  
+
+h2 {
+  line-height: 5px;
+  color: #000000;
+}
+h2:first-letter {
+  font-size: 150%;
+  color: #eb6100;
+}
+
+
+/*--------------------------------------  
+　   テキストボックス  
+---------------------------------------*/  
+
+.textbox {
+  position: relative;
+  width: 450px;
+  margin: 30px auto;
+}
+label {
+	position: absolute;
+	top: 0px;
+	color: #a9a9a9;
+	font-size: 1.4rem;
+	transition: all ease-in-out 0.3s;
+}
+input {
+	display: block;
+	width: 450px;
+	padding: 5px 0;
+	border: none;
+	border-bottom: solid 1px #1abc9c;
+	background: linear-gradient(to bottom, transparent 92%, #1abc9c 8%) no-repeat;
+	background-position: -300px 0;
+	background-size: 500px 100%;
+	font-size: 1.4rem;
+	transition: all ease-in-out 0.3s;
+	&:focus,
+	&:not(:placeholder-shown) {
+		background-position: 0 0;
+		outline: none;
+		+ label {
+			top: -12px;
+			color: #1abc9c;
+			font-size: 1rem;
+		}
+	}
+}
+
+
+
+/*--------------------------------------  
+　   表形式  
+---------------------------------------*/  
+
+table {
+    border-collapse: collapse;  /* セルの線を重ねる */
+}
+
+th,td {
+    padding: 5px 10px;          /* 余白指定 */
+}
+
+th {
+    background-color: #2196F3;  /* 背景色指定 */
+    color:  #fff;               /* 文字色指定 */
+    font-weight:  normal;       /* 文字の太さ指定 */
+    position:  relative;        /* 位置指定 */
+    z-index: 10;                /* 重なり調整 */
+}
+
+td {
+    color: #000000;
+    background-color:  #c0c9ff; /* 背景色指定 */
+    padding-left: 25px;         /* 余白指定 */
+}
+
+th::after {
+    content:'';                 /* 空の要素を作る */
+    position:  absolute;        /* 位置指定 */
+    height: 24px;               /* 高さ指定 */
+    width: 24px;                /* 幅指定 */
+    background-color: #2196F3;  /* 背景色指定 */
+    transform:  rotate(45deg);  /* 要素を回転 */
+    top: 5px;                   /* 位置指定 */
+    right: -12px;               /* 位置指定 */
+    z-index:  -1;               /* 重なり調整 */
+}
+
+tr {
+    border-bottom:  solid #fff; /* 線指定 */
+}

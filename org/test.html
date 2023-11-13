@@ -1,0 +1,203 @@
+
+<!DOCTYPE html>
+<html>
+    <!--▼ヘッダ▼-->  
+	<head>
+		<title>テスト</title>
+		<meta charset="SJIS">
+	</head>
+    <!--▲ヘッダ▲-->  
+
+    <!--★スタイルシート -->  
+	<link rel="stylesheet" href="test.css">
+
+    <!--▼処理▼-->  
+	<script type="text/javascript">
+		function p1clc() {
+			var foo = document.getElementById("foo").value;
+			if (foo == 0) {
+				document.getElementById("foo").value = document.getElementsByName('example')[0].value;
+				document.getElementsByName('example')[0].value = '';
+			}
+		}
+		function p1clr() {
+			var foo = document.getElementById("foo").value;
+			if (foo != 0) {
+				document.getElementsByName('example')[0].value = document.getElementById("foo").value;
+				document.getElementById("foo").value = 0;
+			}
+		}
+		function p1exe() {
+			//document.getElementsByName('example')[0].value = 111;
+			//alert('1回目');
+			//document.getElementById("area1").innerText = "変更しました";
+			//alert('2回目');
+
+			var foo = document.getElementById("foo").value;
+			if (foo == 0) {
+				alert("何も入力されていません");
+				return;
+			}
+			document.getElementById('p1').style.display = "none";
+			document.getElementById('p2').style.display = "";
+			document.getElementById('p3').style.display = "none";
+			mainExe();
+		}
+		function p2bak() {
+			document.getElementById('p1').style.display = "";
+			document.getElementById('p2').style.display = "none";
+			document.getElementById('p2').style.display = "none";
+		}
+		function p2exe() {
+			document.getElementById('p1').style.display = "none";
+			document.getElementById('p2').style.display = "none";
+			document.getElementById('p3').style.display = "";
+		}
+		function p3bak() {
+			document.getElementById('p1').style.display = "none";
+			document.getElementById('p2').style.display = "";
+			document.getElementById('p3').style.display = "none";
+		}
+		function p3copy() {
+			// クリップボードにコピー
+			navigator.clipboard.writeText("コピーしたテキスト");
+		}
+
+		function mainExe() {
+
+			var iniStr = document.getElementsByName('example')[0].value;
+			if ( iniStr.match('\t')) {
+				//strにhogeを含む場合の処理
+				//alert('タブを含む');
+			}
+
+		}
+
+	</script>
+    <!--▲処理▲-->  
+
+	<body>
+		<div class="parent">
+			<!--<div style="text-align:center;">-->
+
+		    <!--▼入力画面▼-->  
+			<div class="flex_test-box" id="p1">
+				<div class="flex_test-item">
+					<h2>メンバーの名前とパワーを入力</h2>
+				</div>
+				<div class="flex_test-item">
+					<input type="hidden" value="0" id="foo" />
+					<textarea name="example" cols="60" rows="30" onclick="p1clc()">
+ここに名前とパワーを入力
+（Excelから貼り付けも可能）
+（カンマ、タブで判断）
+例：
+
+佐藤,2590
+鈴木,2316
+</textarea>
+				</div>
+				<br>
+				<div class="flex_test-item">
+					<!--<button name="button" class="btn btn--orange" onclick="p1exe()">実行</button>-->
+					<a href="#" class="btn_03" onclick="p1clr()">クリア</a>
+					<a href="#" class="btn_04" onclick="p1exe()">実行</a>
+				</div>
+				<div id="area1"></div>
+			</div>
+		    <!--▲入力画面▲-->  
+
+		    <!--▼確認画面▼-->  
+			<div class="flex_test-box" id="p2" style="display: none;">
+		<!--<div class="flex_test-box" id="p2" style="display: none;">-->
+				<div class="flex_test-item">
+					<h2>対象人数　：8人</h2>
+				</div>
+				<div class="flex_test-item">
+					<h2>最大パワー：9999999999</h2>
+				</div>
+				<div class="flex_test-item">
+					<h2>平均パワー：</h2>
+				</div>
+				<div class="flex_test-item">
+					<h2>最小パワー：</h2>
+				</div>
+
+				<div class="textbox">
+					<input type="text" id="name" placeholder="&nbsp;" value="100" />
+					<label for="name">試行数</label>
+				</div>
+				<div class="textbox">
+					<input type="text" id="name" placeholder="&nbsp;" value="10" />
+					<label for="name">許容差</label>
+				</div>
+
+				<div class="flex_test-item">
+					<a href="#" class="btn_03" onclick="p2bak()">戻る</a>
+					<a href="#" class="btn_04" onclick="p2exe()">実行</a>
+				</div>
+			</div>
+		    <!--▲確認画面▲-->  
+
+		    <!--▼結果画面▼-->  
+			<div class="flex_test-box" id="p3" style="display: none;">
+		<!--<div class="flex_test-box" id="p3" style="display: none;">-->
+				<div class="flex_test-item">
+					<table>
+					    <tbody>
+					        <tr>
+					            <th>見出し</th>
+					            <td>テキストが入ります</td>
+					            <td>テキストが入ります</td>
+					            <td>テキストが入ります</td>
+					            <td>テキストが入ります</td>
+					        </tr>
+					         <tr>
+					            <th>見出し</th>
+					            <td>テキストが入ります</td>
+					            <td>テキストが入ります</td>
+					            <td>テキストが入ります</td>
+					            <td>テキストが入ります</td>
+					        </tr>
+					         <tr>
+					            <th>見出し</th>
+					            <td>テキストが入ります</td>
+					            <td>テキストが入ります</td>
+					            <td>テキストが入ります</td>
+					            <td>テキストが入ります</td>
+					        </tr>
+					        <tr>
+					            <th>見出し</th>
+					            <td>テキストが入ります</td>
+					            <td>テキストが入ります</td>
+					            <td>テキストが入ります</td>
+					            <td>テキストが入ります</td>
+					        </tr>
+					        <tr>
+					            <th>見出し</th>
+					            <td>テキストが入ります</td>
+					            <td>テキストが入ります</td>
+					            <td>テキストが入ります</td>
+					            <td>テキストが入ります</td>
+					        </tr>
+					    </tbody>
+					</table>
+				</div>
+				<div class="flex_test-item">
+					<a href="#" class="btn_03" onclick="p3bak()">戻る</a>
+					<a href="#" class="btn_04" onclick="p3copy()">コピー</a>
+				</div>
+			</div>
+		    <!--▲結果画面▲-->  
+		</div>
+<!--
+		<div class="container">
+		  <div class="box">あ</div>
+		  <div class="box">い</div>
+		  <div class="box">う</div>
+		  <div class="box">え</div>
+		  <div class="box">お</div>
+		</div>
+-->
+	</body>
+</html>
