@@ -1,0 +1,125 @@
+このような問題をJavaScriptのロジックで解くには、いくつかの方法がありますが、一例として以下のようなコードを考えてみました。
+
+
+// データを配列として定義する
+const data = [
+  { name: "佐藤", power: 2774 },
+  { name: "鈴木", power: 2551 },
+  { name: "高橋", power: 1848 },
+  { name: "田中", power: 1999 },
+  { name: "伊藤", power: 2300 },
+  { name: "渡辺", power: 2109 },
+  { name: "山本", power: 2467 },
+  { name: "中村", power: 2110 },
+  { name: "小林", power: 1970 },
+  { name: "加藤", power: 2656 },
+  { name: "吉田", power: 2094 },
+  { name: "山田", power: 2418 },
+  { name: "佐々木", power: 2227 },
+  { name: "山口", power: 2174 },
+  { name: "松本", power: 2442 },
+  { name: "井上", power: 2053 },
+  { name: "木村", power: 2033 },
+  { name: "林", power: 2500 },
+  { name: "斎藤", power: 2362 },
+  { name: "清水", power: 2385 },
+];
+
+// パワーの合計を求める関数
+const sum = (array) => {
+  let total = 0;
+  for (let item of array) {
+    total += item.power;
+  }
+  return total;
+};
+
+// パワーの平均を求める関数
+const average = (array) => {
+  return sum(array) / array.length;
+};
+
+// パワーの差の絶対値を求める関数
+const difference = (a, b) => {
+  return Math.abs(a - b);
+};
+
+// チームを分ける関数
+const divide = (array) => {
+  // チームの数
+  const teamNum = 4;
+  // チームの人数
+  const teamSize = array.length / teamNum;
+  // チームの配列
+  const teams = [];
+  // パワーの平均の配列
+  const averages = [];
+  // パワーの平均の差の最小値
+  let minDiff = Infinity;
+  // パワーの平均の差の最小値を持つチームのインデックス
+  let minIndex = -1;
+
+  // チームをランダムに分ける
+  for (let i = 0; i < teamNum; i++) {
+    // チームを作る
+    let team = [];
+    // チームに人を追加する
+    for (let j = 0; j < teamSize; j++) {
+      // データからランダムに要素を選ぶ
+      let index = Math.floor(Math.random() * array.length);
+      // 選んだ要素をチームに追加する
+      team.push(array[index]);
+      // データから選んだ要素を削除する
+      array.splice(index, 1);
+    }
+    // チームをチームの配列に追加する
+    teams.push(team);
+    // チームのパワーの平均を求める
+    let avg = average(team);
+    // パワーの平均をパワーの平均の配列に追加する
+    averages.push(avg);
+  }
+
+  // パワーの平均の差の最小値を求める
+  for (let i = 0; i < teamNum - 1; i++) {
+    for (let j = i + 1; j < teamNum; j++) {
+      // パワーの平均の差を求める
+      let diff = difference(averages[i], averages[j]);
+      // パワーの平均の差が最小値より小さければ
+      if (diff < minDiff) {
+        // 最小値と最小値を持つチームのインデックスを更新する
+        minDiff = diff;
+        minIndex = i;
+      }
+    }
+  }
+
+  // パワーの平均の差の最小値を持つチームを最初に表示する
+  let firstTeam = teams.splice(minIndex, 1)[0];
+  teams.unshift(firstTeam);
+
+  // チームの配列を返す
+  return teams;
+};
+
+// チームを分ける
+const teams = divide(data);
+
+// チームを表示する
+for (let i = 0; i < teams.length; i++) {
+  console.log(`チーム${i + 1}:`);
+  for (let item of teams[i]) {
+    console.log(`${item.name}: ${item.power}`);
+  }
+  console.log(`パワーの平均: ${average(teams[i])}`);
+  console.log("----------");
+}
+
+
+このコードの説明は以下の通りです。
+
+まず、データを配列として定義します。配列の要素はオブジェクトとして、名前とパワーのプロパティを持ちます。
+次に、パワーの合計、パワーの平均、パワーの差の絶対値を求める関数を定義します。これらは後でチームを分けるときに使います。
+そして、チームを分ける関数を定義します。この関数は以下の処理を行います。
+チームの数、チームの人数、チームの配列、パワーの平均の配列、パワーの平均の差の最小値、最小値を持つチームのインデックスを変数として宣言します。
+チームをランダムに分けるために、データからランダムに要素を選んでチームに追加し、データから削除します。これをチームの数と人数に応じて繰り返します。チームを作ったらチームの配列に追加し、パワーの平均を求めてパワーの平均の配
