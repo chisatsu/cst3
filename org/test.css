@@ -141,6 +141,23 @@ a.btn_13:hover {
 	color: #fff;
 }
 
+.btn-square-so-pop {
+  position: relative;
+  display: inline-block;
+  padding: 0.25em 0.5em;
+  text-decoration: none;
+  color: #FFF;
+  background: #6ad1c8;/*色*/
+  border-radius: 4px;/*角の丸み*/
+  box-shadow: inset 0 2px 0 rgba(255,255,255,0.2), inset 0 -2px 0 rgba(0, 0, 0, 0.05);
+  font-weight: bold;
+  border: solid 2px #FFF;/*線色*/
+}
+
+.btn-square-so-pop:active {
+  /*押したとき*/
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.30);
+}
 
 /*--------------------------------------  
 　   表形式（没）  
@@ -165,18 +182,66 @@ a.btn_13:hover {
 
 
 /*--------------------------------------  
+　   ボックス
+---------------------------------------*/  
+
+.box29 {
+    margin: 2em 0;
+    background: #dcefff;
+}
+.box29 .box-title {
+    font-size: 1.2em;
+    background: #5fb3f5;
+    padding: 4px;
+    text-align: center;
+    color: #FFF;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+}
+.box29 p {
+    padding: 15px 20px;
+    margin: 0;
+}
+
+.box22{
+    padding: 0.5em 1em;
+    margin: 1em 0;
+    background: #f4f4f4;
+    border-left: solid 6px #5bb7ae;
+    box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.33);
+}
+.box22 p {
+    margin: 0; 
+    padding: 0;
+}
+/*--------------------------------------  
 　   ラベル  
 ---------------------------------------*/  
 
-h2 {
+h2#or {
   line-height: 5px;
   color: #000000;
 }
-h2:first-letter {
+h2#or:first-letter {
   font-size: 150%;
   color: #eb6100;
 }
 
+h3 {
+  position: relative;
+  color: #000;
+}
+
+h3:after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 7px;
+  background: -webkit-repeating-linear-gradient(-45deg, #6ad1c8, #6ad1c8 2px, #fff 2px, #fff 4px);
+  background: repeating-linear-gradient(-45deg, #6ad1c8, #6ad1c8 2px, #fff 2px, #fff 4px);
+}
 
 /*--------------------------------------  
 　   テキストボックス  
@@ -223,40 +288,19 @@ input {
 　   表形式  
 ---------------------------------------*/  
 
-table {
-    border-collapse: collapse;  /* セルの線を重ねる */
-}
-
 th,td {
-    padding: 5px 10px;          /* 余白指定 */
+    border: solid 1px;          /* 枠線指定 */
+    background-color: #fff;
+}
+th,td#gg {
+    border: solid 1px;          /* 枠線指定 */
+    background-color: #eee;
 }
 
-th {
-    background-color: #2196F3;  /* 背景色指定 */
-    color:  #fff;               /* 文字色指定 */
-    font-weight:  normal;       /* 文字の太さ指定 */
-    position:  relative;        /* 位置指定 */
-    z-index: 10;                /* 重なり調整 */
+table {
+    border-collapse:  collapse; /* セルの線を重ねる */
+    width:  100%;               /* 幅指定 */
+    table-layout: fixed;        /* セルの幅計算指定 */
+    color: #000;
 }
 
-td {
-    color: #000000;
-    background-color:  #c0c9ff; /* 背景色指定 */
-    padding-left: 25px;         /* 余白指定 */
-}
-
-th::after {
-    content:'';                 /* 空の要素を作る */
-    position:  absolute;        /* 位置指定 */
-    height: 24px;               /* 高さ指定 */
-    width: 24px;                /* 幅指定 */
-    background-color: #2196F3;  /* 背景色指定 */
-    transform:  rotate(45deg);  /* 要素を回転 */
-    top: 5px;                   /* 位置指定 */
-    right: -12px;               /* 位置指定 */
-    z-index:  -1;               /* 重なり調整 */
-}
-
-tr {
-    border-bottom:  solid #fff; /* 線指定 */
-}

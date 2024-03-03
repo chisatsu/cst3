@@ -5,7 +5,7 @@
 	<head>
 		<title>テスト</title>
 		<meta http-equiv="content-type" charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="viewport" content="width=device-width, initial-scale=0.8" />
 	</head>
     <!--▲ヘッダ▲-->  
 
@@ -35,10 +35,6 @@
 			//alert('2回目');
 
 			var foo = document.getElementById("foo").value;
-			if (foo == 0) {
-				alert("何も入力されていません");
-				return;
-			}
 			document.getElementById('p1').style.display = "none";
 			document.getElementById('p2').style.display = "";
 			document.getElementById('p3').style.display = "none";
@@ -84,19 +80,11 @@
 		    <!--▼入力画面▼-->  
 			<div class="flex_test-box" id="p1">
 				<div class="flex_test-item">
-					<h2>メンバーの名前とパワーを入力</h2>
+					<h2 id="or">メンバーの名前とパワーを入力</h2>
 				</div>
 				<div class="flex_test-item">
 					<input type="hidden" value="0" id="foo" />
-					<textarea name="example" font-size="4" cols="60" rows="30" onclick="p1clc()">
-ここに名前とパワーを入力
-（Excelから貼り付けも可能）
-（カンマ、タブで判断）
-例：
-
-佐藤,2590
-鈴木,2316
-</textarea>
+					<textarea name="example" font-size="4" cols="60" rows="30" onclick="p1clc()" placeholder="Excelから名前とパワーをコピーすることも可能です。"></textarea>
 				</div>
 				<br>
 				<div class="flex_test-item">
@@ -112,16 +100,22 @@
 			<div class="flex_test-box" id="p2" style="display: none;">
 		<!--<div class="flex_test-box" id="p2" style="display: none;">-->
 				<div class="flex_test-item">
-					<h2>対象人数　：8人</h2>
+					<h2 id="or">対象人数　：8人</h2>
 				</div>
 				<div class="flex_test-item">
-					<h2>最大パワー：9999999999</h2>
+					<h2 id="or">チーム数：2</h2>
 				</div>
 				<div class="flex_test-item">
-					<h2>平均パワー：</h2>
+					<h2 id="or">対象外メンバー：なし</h2>
 				</div>
 				<div class="flex_test-item">
-					<h2>最小パワー：</h2>
+					<h2 id="or">最大パワー：9999999999</h2>
+				</div>
+				<div class="flex_test-item">
+					<h2 id="or">平均パワー：</h2>
+				</div>
+				<div class="flex_test-item">
+					<h2 id="or">最小パワー：</h2>
 				</div>
 
 				<div class="textbox">
@@ -144,49 +138,83 @@
 			<div class="flex_test-box" id="p3" style="display: none;">
 		<!--<div class="flex_test-box" id="p3" style="display: none;">-->
 				<div class="flex_test-item">
-					<table>
-					    <tbody>
+					<h3>許容差：30、試行数：35/100、成立数：11</h3>
+				</div>
+				<div class="flex_test-item">
+					<h3>最大差：28、最小差：5、成立率：25%</h3>
+				</div>
+				<div class="box22">
+					<p>パターン01、最大2258、最小2253、差分5</p>
+					<a href="#" class="btn-square-so-pop">COPY</a>
+				</div>
+				<div class="flex_test-item">
+					<table align="center">
+					    <tbody align="center">
 					        <tr>
-					            <th>見出し</th>
-					            <td>テキストが入ります</td>
-					            <td>テキストが入ります</td>
-					            <td>テキストが入ります</td>
-					            <td>テキストが入ります</td>
-					        </tr>
-					         <tr>
-					            <th>見出し</th>
-					            <td>テキストが入ります</td>
-					            <td>テキストが入ります</td>
-					            <td>テキストが入ります</td>
-					            <td>テキストが入ります</td>
-					        </tr>
-					         <tr>
-					            <th>見出し</th>
-					            <td>テキストが入ります</td>
-					            <td>テキストが入ります</td>
-					            <td>テキストが入ります</td>
-					            <td>テキストが入ります</td>
+					            <td>チームA</td>
+					            <td>平均：2255</td>
+					            <td>チームB</td>
+					            <td>平均：2257</td>
 					        </tr>
 					        <tr>
-					            <th>見出し</th>
-					            <td>テキストが入ります</td>
-					            <td>テキストが入ります</td>
-					            <td>テキストが入ります</td>
-					            <td>テキストが入ります</td>
+					            <td>加藤</td>
+					            <td>2656</td>
+					            <td>山本</td>
+					            <td>2467</td>
 					        </tr>
 					        <tr>
-					            <th>見出し</th>
-					            <td>テキストが入ります</td>
-					            <td>テキストが入ります</td>
-					            <td>テキストが入ります</td>
-					            <td>テキストが入ります</td>
+					            <td>山本</td>
+					            <td>2467</td>
+					            <td>中村</td>
+					            <td>2110</td>
+					        </tr>
+					        <tr>
+					            <td>田中</td>
+					            <td>1999</td>
+					            <td>渡辺</td>
+					            <td>2109</td>
+					        </tr>
+					        <tr>
+					            <td>高橋</td>
+					            <td>1848</td>
+					            <td>小林</td>
+					            <td>1970</td>
+					        </tr>
+					        <tr>
+					            <td id="gg">チームC</td>
+					            <td id="gg">平均：2268</td>
+					            <td id="gg"></td>
+					            <td id="gg"></td>
+					        </tr>
+					        <tr>
+					            <td id="gg">ちーちゃん</td>
+					            <td id="gg">2442</td>
+					            <td id="gg"></td>
+					            <td id="gg"></td>
+					        </tr>
+					        <tr>
+					            <td id="gg">あぶ</td>
+					            <td id="gg">2362</td>
+					            <td id="gg"></td>
+					            <td id="gg"></td>
+					        </tr>
+					        <tr>
+					            <td id="gg">ミジンコ</td>
+					            <td id="gg">2174</td>
+					            <td id="gg"></td>
+					            <td id="gg"></td>
+					        </tr>
+					        <tr>
+					            <td id="gg">りったい</td>
+					            <td id="gg">2094</td>
+					            <td id="gg"></td>
+					            <td id="gg"></td>
 					        </tr>
 					    </tbody>
 					</table>
 				</div>
 				<div class="flex_test-item">
 					<a href="#" class="btn_03" onclick="p3bak()">戻る</a>
-					<a href="#" class="btn_04" onclick="p3copy()">コピー</a>
 				</div>
 			</div>
 		    <!--▲結果画面▲-->  
