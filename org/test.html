@@ -14,6 +14,23 @@
 
     <!--▼処理▼-->  
 	<script type="text/javascript">
+
+/*
+const textarea = $("#example");
+const placeholderDiv = $("#placeholderDiv");
+alert();
+
+textarea.on('keyup change', function () {
+ // textareaの文字を数える
+ let letterLength = textarea.val().length;
+  if (letterLength !== 0) {
+   placeholderDiv.addClass('none');
+  } else {
+   placeholderDiv.removeClass('none');
+  }
+});
+*/
+
 		function p1clc() {
 			var foo = document.getElementById("foo").value;
 			if (foo == 0) {
@@ -22,11 +39,12 @@
 			}
 		}
 		function p1clr() {
-			var foo = document.getElementById("foo").value;
-			if (foo != 0) {
-				document.getElementsByName('example')[0].value = document.getElementById("foo").value;
-				document.getElementById("foo").value = 0;
-			}
+			document.getElementsByName('example')[0].value = "";
+//			var foo = document.getElementById("foo").value;
+//			if (foo != 0) {
+//				document.getElementsByName('example')[0].value = document.getElementById("foo").value;
+//				document.getElementById("foo").value = 0;
+//			}
 		}
 		function p1exe() {
 			//document.getElementsByName('example')[0].value = 111;
@@ -39,6 +57,9 @@
 			document.getElementById('p2').style.display = "";
 			document.getElementById('p3').style.display = "none";
 			mainExe();
+		}
+		function p1sample() {
+			document.getElementsByName('example')[0].value = "佐藤,2774\n鈴木,2551\n高橋,1848\n田中,1999\n伊藤,2300\n渡辺,2109\n山本,2467\n中村,2110\n小林,1970\n加藤,2656\n吉田,2094\n山田,2418\n佐々木,2227\n山口,2174\n松本,2442\n井上,2053\n木村,2033\n林,2500\n斎藤,2362\n清水,2385\n";
 		}
 		function p2bak() {
 			document.getElementById('p1').style.display = "";
@@ -61,13 +82,11 @@
 		}
 
 		function mainExe() {
-
-			var iniStr = document.getElementsByName('example')[0].value;
-			if ( iniStr.match('\t')) {
-				//strにhogeを含む場合の処理
-				//alert('タブを含む');
-			}
-
+			
+			const iniStr = document.getElementsByName('example')[0].value;
+			const array = iniStr.split(/\r\n|\n|\r/);
+			const result = array.filter( s => (0 <= s.indexOf(",")) ^ false); // ^ は XOR 排他論
+			$("#example").value = result.join("\n");
 		}
 
 	</script>
@@ -84,13 +103,16 @@
 				</div>
 				<div class="flex_test-item">
 					<input type="hidden" value="0" id="foo" />
-					<textarea name="example" font-size="4" cols="60" rows="30" onclick="p1clc()" placeholder="例：佐藤,2489　※1メンバーごとに改行してください。Excelから名前とパワーをコピーすることも可能です。"></textarea>
+					<textarea name="example" font-size="4" cols="60" rows="30" onclick="p1clc()" placeholder="佐藤,2500　のようにメンバーを縦に入力してください。Excelからも張り付けれます。"></textarea>
 				</div>
 				<br>
 				<div class="flex_test-item">
 					<!--<button name="button" class="btn btn--orange" onclick="p1exe()">実行</button>-->
 					<a href="#" class="btn_03" onclick="p1clr()">クリア</a>
 					<a href="#" class="btn_04" onclick="p1exe()">実行</a>
+				</div>
+				<div class="flex_test-item">
+					<a href="#" onclick="p1sample()">サンプルデータ入力</a>
 				</div>
 				<div id="area1"></div>
 			</div>
@@ -109,7 +131,7 @@
 					<h2 id="or">対象外メンバー：なし</h2>
 				</div>
 				<div class="flex_test-item">
-					<h2 id="or">最大パワー：9999999999</h2>
+					<h2 id="or">最大パワー：9999</h2>
 				</div>
 				<div class="flex_test-item">
 					<h2 id="or">平均パワー：</h2>

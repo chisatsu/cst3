@@ -304,3 +304,23 @@ table {
     color: #000;
 }
 
+
+/*--------------------------------------  
+　   プレースホルダ
+---------------------------------------*/  
+
+.textareaDiv {
+ position: relative;
+}
+textarea {
+ opacity: .7;
+}
+.textareaDiv #placeholderDiv {
+ position: absolute;
+ top: 15px;
+ left: 15px;
+ font-size: 14px;
+}
+.textareaDiv #placeholderDiv.none {
+ display: none;
+}
