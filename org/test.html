@@ -15,10 +15,11 @@
     <!--▼処理▼-->  
 	<script type="text/javascript">
 
+        function start() {
+        }
 /*
-const textarea = $("#example");
-const placeholderDiv = $("#placeholderDiv");
-alert();
+const textarea = document.getElementsByName('example');
+const placeholderDiv = document.getElementsByName('placeholderDiv');
 
 textarea.on('keyup change', function () {
  // textareaの文字を数える
@@ -84,15 +85,47 @@ textarea.on('keyup change', function () {
 		function mainExe() {
 			
 			const iniStr = document.getElementsByName('example')[0].value;
-			const array = iniStr.split(/\r\n|\n|\r/);
+			const newStr = iniStr.replaceAll('\t', ',');
+			const array = newStr.split(/\r\n|\n|\r/);
 			const result = array.filter( s => (0 <= s.indexOf(",")) ^ false); // ^ は XOR 排他論
-			$("#example").value = result.join("\n");
+
+			// パワーの最小値
+			let minPow = Infinity;
+			// パワーの最大値
+			let manPow = -Infinity;
+			// パワーの合計
+			let total = 0;
+
+			for (let i = 0; i < result.length; i++) {
+				console.log(`${i + 1}:${result[i]}`);
+				let pow = result[i].split(',');
+				if (pow[1] < minPow) {
+					minPow = pow[1];
+				}
+				if (pow[1] > manPow) {
+					manPow = pow[1];
+				}
+				total += Number(pow[1]);
+			}
+			console.log(`対象人数　：${result.length}人`);
+			console.log(`チーム数：${Math.round(result.length/4)}`);
+			console.log(`最大パワー：${manPow}`);
+			console.log(`平均パワー：${Math.round(total/result.length)}`);
+			console.log(`最小パワー：${minPow}`);
+
+			document.getElementById("ninzu").innerHTML = `対象人数　：${result.length}人`;
+			document.getElementById("teams").innerHTML = `チーム数：${Math.round(result.length/4)}`;
+			document.getElementById("taisg").innerHTML = `対象外メンバー：なし`;
+			document.getElementById("maxpw").innerHTML = `最大パワー：${manPow}`;
+			document.getElementById("avgpw").innerHTML = `平均パワー：${Math.round(total/result.length)}`;
+			document.getElementById("mixpw").innerHTML = `最小パワー：${minPow}`;
+			
 		}
 
 	</script>
     <!--▲処理▲-->  
 
-	<body>
+	<body onload="start()">
 		<div class="parent">
 			<!--<div style="text-align:center;">-->
 
@@ -103,7 +136,7 @@ textarea.on('keyup change', function () {
 				</div>
 				<div class="flex_test-item">
 					<input type="hidden" value="0" id="foo" />
-					<textarea name="example" font-size="4" cols="60" rows="30" onclick="p1clc()" placeholder="佐藤,2500　のようにメンバーを縦に入力してください。Excelからも張り付けれます。"></textarea>
+					<textarea name="example" id="example" class="big" cols="60" rows="30" onclick="p1clc()" placeholder="例）&#13;佐藤,2774&#13;鈴木,2551&#13;高橋,1848&#13;田中,1999&#13;伊藤,2300&#13;渡辺,2109&#13;山本,2467&#13;中村,2110&#13;小林,1970&#13;加藤,2656&#13;吉田,2094&#13;山田,2418&#13;佐々木,2227&#13;山口,2174&#13;松本,2442&#13;井上,2053&#13;木村,2033&#13;林,2500&#13;斎藤,2362&#13;清水,2385&#13;&#13;このように縦に入力してください。&#13;Excelからも張り付けれます。"></textarea>
 				</div>
 				<br>
 				<div class="flex_test-item">
@@ -122,22 +155,22 @@ textarea.on('keyup change', function () {
 			<div class="flex_test-box" id="p2" style="display: none;">
 		<!--<div class="flex_test-box" id="p2" style="display: none;">-->
 				<div class="flex_test-item">
-					<h2 id="or">対象人数　：8人</h2>
+					<h2 id="ninzu">対象人数　：8人</h2>
 				</div>
 				<div class="flex_test-item">
-					<h2 id="or">チーム数：2</h2>
+					<h2 id="teams">チーム数：2</h2>
 				</div>
 				<div class="flex_test-item">
-					<h2 id="or">対象外メンバー：なし</h2>
+					<h2 id="taisg">対象外メンバー：なし</h2>
 				</div>
 				<div class="flex_test-item">
-					<h2 id="or">最大パワー：9999</h2>
+					<h2 id="maxpw">最大パワー：9999</h2>
 				</div>
 				<div class="flex_test-item">
-					<h2 id="or">平均パワー：</h2>
+					<h2 id="avgpw">平均パワー：</h2>
 				</div>
 				<div class="flex_test-item">
-					<h2 id="or">最小パワー：</h2>
+					<h2 id="mixpw">最小パワー：</h2>
 				</div>
 
 				<div class="textbox">

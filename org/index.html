@@ -1,0 +1,128 @@
+
+<!DOCTYPE html>
+<html>
+    <!--▼ヘッダ▼-->  
+	<head>
+		<title>テスト</title>
+		<meta http-equiv="content-type" charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=0.8" />
+	</head>
+    <!--▲ヘッダ▲-->  
+
+    <!--★スタイルシート -->  
+
+    <!--▼処理▼-->  
+	<script type="text/javascript">
+
+		function p1clc() {
+
+			// データを配列として定義する
+			const data = [
+			  { name: "佐藤", power: 2774 },
+			  { name: "鈴木", power: 2551 },
+			  { name: "高橋", power: 1848 },
+			  { name: "田中", power: 1999 },
+			  { name: "伊藤", power: 2300 },
+			  { name: "渡辺", power: 2109 },
+			  { name: "山本", power: 2467 },
+			  { name: "中村", power: 2110 },
+			  { name: "小林", power: 1970 },
+			  { name: "加藤", power: 2656 },
+			  { name: "吉田", power: 2094 },
+			  { name: "山田", power: 2418 },
+			  { name: "佐々木", power: 2227 },
+			  { name: "山口", power: 2174 },
+			  { name: "松本", power: 2442 },
+			  { name: "井上", power: 2053 },
+			  { name: "木村", power: 2033 },
+			  { name: "林", power: 2500 },
+			  { name: "斎藤", power: 2362 },
+			  { name: "清水", power: 2385 },
+			];
+
+			// パワーの合計を求める関数
+			const sum = (array) => {
+			  let total = 0;
+			  for (let item of array) {
+			    total += item.power;
+			  }
+			  return total;
+			};
+
+			// パワーの平均を求める関数
+			const average = (array) => {
+			  return sum(array) / array.length;
+			};
+
+			// パワーの差の絶対値を求める関数
+			const difference = (a, b) => {
+			  return Math.abs(a - b);
+			};
+
+			// チームを分ける関数
+			const divide = (array) => {
+			  // チームの人数
+			  const teamSize = 4;
+			  // チームの数
+			  const teamNum = array.length / teamSize;
+			  // チームの配列
+			  const teams = [];
+			  // パワーの平均の配列
+			  const averages = [];
+			  // パワーの平均の差の最小値
+			  let minDiff = Infinity;
+			  // パワーの平均の差の最小値を持つチームのインデックス
+			  let minIndex = -1;
+
+			  // チームをランダムに分ける
+			  for (let i = 0; i < teamNum; i++) {
+			    // チームを作る
+			    let team = [];
+			    // チームに人を追加する
+			    for (let j = 0; j < teamSize; j++) {
+			      // データからランダムに要素を選ぶ
+			      let index = Math.floor(Math.random() * array.length);
+			      // 選んだ要素をチームに追加する
+			      team.push(array[index]);
+			      // データから選んだ要素を削除する
+			      array.splice(index, 1);
+			    }
+			    // チームをチームの配列に追加する
+			    teams.push(team);
+			    // チームのパワーの平均を求める
+			    let avg = average(team);
+			    // パワーの平均をパワーの平均の配列に追加する
+			    averages.push(avg);
+			  }
+
+			  // パワーの平均の差の最小値を持つチームを最初に表示する
+			  let firstTeam = teams.splice(minIndex, 1)[0];
+			  teams.unshift(firstTeam);
+
+			  // チームの配列を返す
+			  return teams;
+			};
+
+			// チームを分ける
+			const teams = divide(data);
+
+			// チームを表示する
+			for (let i = 0; i < teams.length; i++) {
+			  console.log(`チーム${i + 1}:`);
+			  for (let item of teams[i]) {
+			    console.log(`${item.name}: ${item.power}`);
+			  }
+			  console.log(`パワーの平均: ${average(teams[i])}`);
+			  console.log("----------");
+			}
+
+		}
+
+	</script>
+    <!--▲処理▲-->  
+
+	<body>
+		<textarea name="test1" font-size="4" cols="60" rows="30" onclick="p1clc()">test1</textarea>
+		<textarea name="test2" font-size="4" cols="60" rows="30" onclick="p1clc()">test2</textarea>
+	</body>
+</html>

@@ -218,6 +218,55 @@ a.btn_13:hover {
 　   ラベル  
 ---------------------------------------*/  
 
+
+h2#ninzu {
+  line-height: 5px;
+  color: #000000;
+}
+h2#ninzu:first-letter {
+  font-size: 150%;
+  color: #eb6100;
+}
+h2#teams {
+  line-height: 5px;
+  color: #000000;
+}
+h2#teams:first-letter {
+  font-size: 150%;
+  color: #eb6100;
+}
+h2#taisg {
+  line-height: 5px;
+  color: #000000;
+}
+h2#taisg:first-letter {
+  font-size: 150%;
+  color: #eb6100;
+}
+h2#maxpw {
+  line-height: 5px;
+  color: #000000;
+}
+h2#maxpw:first-letter {
+  font-size: 150%;
+  color: #eb6100;
+}
+h2#avgpw {
+  line-height: 5px;
+  color: #000000;
+}
+h2#avgpw:first-letter {
+  font-size: 150%;
+  color: #eb6100;
+}
+h2#mixpw {
+  line-height: 5px;
+  color: #000000;
+}
+h2#mixpw:first-letter {
+  font-size: 150%;
+  color: #eb6100;
+}
 h2#or {
   line-height: 5px;
   color: #000000;
@@ -324,3 +373,11 @@ textarea {
 .textareaDiv #placeholderDiv.none {
  display: none;
 }
+
+
+
+/*--------------------------------------  
+　   テキストエリア
+---------------------------------------*/  
+
+.big { font-size:10pt; }
