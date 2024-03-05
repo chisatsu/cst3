@@ -108,11 +108,11 @@ textarea.on('keyup change', function () {
 				}
 				total += Number(pow[1]);
 			}
-			console.log(`対象人数　：${result.length}人`);
-			console.log(`チーム数：${Math.round(result.length/4)}`);
-			console.log(`最大パワー：${manPow}`);
-			console.log(`平均パワー：${Math.round(total/result.length)}`);
-			console.log(`最小パワー：${minPow}`);
+//			console.log(`対象人数　：${result.length}人`);
+//			console.log(`チーム数：${Math.round(result.length/4)}`);
+//			console.log(`最大パワー：${manPow}`);
+//			console.log(`平均パワー：${Math.round(total/result.length)}`);
+//			console.log(`最小パワー：${minPow}`);
 
 			document.getElementById("ninzu").innerHTML = `対象人数　：${result.length}人`;
 			document.getElementById("teams").innerHTML = `チーム数：${Math.round(result.length/4)}`;
@@ -131,6 +131,9 @@ textarea.on('keyup change', function () {
 
 			// 子要素を指定しname属性の値を変更
 			const newelement_name = newelement.children[0];
+			const newelement_powd = newelement_name.children[0];
+			newelement_powd.innerText = 'パターン02、最大2218、最小1199、差分500';
+//			newelement_name.innerText = 'パターン02、最大2218、最小1199、差分500';
 
 			//親要素を取得し 複製した要素を追加
 			const parent = document.getElementById("loopout");
@@ -230,9 +233,11 @@ textarea.on('keyup change', function () {
 						<h3>最大差：28、最小差：5、成立率：25%</h3>
 					</div>
 					<div class="oneset" id="oneset">
-						<div class="box22">
-							<p>パターン01、最大2258、最小2253、差分5</p>
-							<a href="#" class="btn-square-so-pop">COPY</a>
+						<div class="box22" name="box22">
+							<div class="teampow01" id="teampow01">
+								<p name="head01">パターン01、最大2258、最小2253、差分5</p>
+							</div>
+							<a name="copy01" href="#" class="btn-square-so-pop">COPY</a>
 						</div>
 						<div class="flex_test-item">
 							<table align="center">
