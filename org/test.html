@@ -83,6 +83,70 @@ textarea.on('keyup change', function () {
 			navigator.clipboard.writeText("コピーしたテキスト");
 		}
 
+		// パワーの合計を求める関数
+		const sum = (array) => {
+		  let total = 0;
+		  for (let item of array) {
+		    total += item.power;
+		  }
+		  return total;
+		};
+
+		// パワーの平均を求める関数
+		const average = (array) => {
+		  return sum(array) / array.length;
+		};
+
+		// パワーの差の絶対値を求める関数
+		const difference = (a, b) => {
+		  return Math.abs(a - b);
+		};
+
+		// チームを分ける関数
+		const divide = (array) => {
+		  // チームの人数
+		  const teamSize = 4;
+		  // チームの数
+		  const teamNum = array.length / teamSize;
+		  // チームの配列
+		  const teams = [];
+		  // パワーの平均の配列
+		  const averages = [];
+		  // パワーの平均の差の最小値
+		  let minDiff = Infinity;
+		  // パワーの平均の差の最小値を持つチームのインデックス
+		  let minIndex = -1;
+
+		  // チームをランダムに分ける
+		  for (let i = 0; i < teamNum; i++) {
+		    // チームを作る
+		    let team = [];
+		    // チームに人を追加する
+		    for (let j = 0; j < teamSize; j++) {
+		      // データからランダムに要素を選ぶ
+		      let index = Math.floor(Math.random() * array.length);
+		      // 選んだ要素をチームに追加する
+		      team.push(array[index]);
+		      // データから選んだ要素を削除する
+		      array.splice(index, 1);
+		    }
+		    // チームをチームの配列に追加する
+		    teams.push(team);
+		    // チームのパワーの平均を求める
+		    let avg = average(team);
+		    // パワーの平均をパワーの平均の配列に追加する
+		    averages.push(avg);
+		  }
+
+		  // パワーの平均の差の最小値を持つチームを最初に表示する
+		  let firstTeam = teams.splice(minIndex, 1)[0];
+		  teams.unshift(firstTeam);
+
+		  // チームの配列を返す
+		  return teams;
+		};
+
+
 		function mainExe() {
 			
 			const iniStr = document.getElementsByName('example')[0].value;
@@ -122,7 +186,38 @@ textarea.on('keyup change', function () {
 			document.getElementById("mixpw").innerHTML = `最小パワー：${minPow}`;
 			
 		}
+
 		function calcExe() {
+		
+			const trycnt = document.getElementById("trycnt").value;
+			const allow = document.getElementById("allow").value;
+		
+			document.getElementById("result1").innerHTML = `許容差：${allow}、試行数：${trycnt}、成立数：11`;
+			document.getElementById("result2").innerHTML = `最大差：28、最小差：5、成立率：25%`;
+			
+			const iniStr = document.getElementsByName('example')[0].value;
+			const newStr = iniStr.replaceAll('\t', ',');
+			const array = newStr.split(/\r\n|\n|\r/);
+			const result = array.filter( s => (0 <= s.indexOf(",")) ^ false); // ^ は XOR 排他論
+
+			// パワーの最小値
+			let minPow = Infinity;
+			// パワーの最大値
+			let manPow = -Infinity;
+			// パワーの合計
+			let total = 0;
+
+			// カンマ区切り配列を連想配列に変換
+			let data = {};
+			for (let i = 0; i < result.length; i++) {
+				let pow = result[i].split(',');
+				data[pow[0]] = pow[1];
+			}
+			
+			
+			
+			
+			
 			// 複製するHTML要素を取得
 			const element = document.getElementById("oneset");
 
@@ -135,9 +230,30 @@ textarea.on('keyup change', function () {
 			newelement_powd.innerText = 'パターン02、最大2218、最小1199、差分500';
 //			newelement_name.innerText = 'パターン02、最大2218、最小1199、差分500';
 
+			const newelement_tabd = newelement.children[1];
+			const newelement_tabl = newelement_tabd.children[0];
+
+			// テーブル書き換え
+			for (let i = 0; i < 10; i++) {
+				for (let j = 0; j < 4; j++) {
+					newelement_tabl.rows[i].cells[j].innerHTML = `i=${i},j=${j}`;
+				}
+			}
+
 			//親要素を取得し 複製した要素を追加
 			const parent = document.getElementById("loopout");
 			parent.appendChild(newelement);
+
+
+// table要素を取得
+//var tableElem = document.getElementById('sample-table');
+// tbody要素にtr要素（行）を最後に追加
+//var trElem = tableElem.tBodies[0].insertRow(-1);\
+// td要素を追加
+//var cellElem = trElem.insertCell(0);
+// td要素にテキストを追加
+//cellElem.appendChild(document.createTextNode('セル'));
+
 			
 			//一番上までスクロール
 			scrollTo(0, 0);
@@ -164,6 +280,9 @@ textarea.on('keyup change', function () {
 
 		    <!--▼入力画面▼-->  
 			<div class="flex_test-box" id="p1">
+				<div class="flex_test-item">
+					<h3>4人1チームのパワー均等割り試行</h3>
+				</div>
 				<div class="flex_test-item">
 					<h2 id="or">メンバーの名前とパワーを入力</h2>
 				</div>
@@ -207,11 +326,11 @@ textarea.on('keyup change', function () {
 				</div>
 
 				<div class="textbox">
-					<input type="text" id="name" placeholder="&nbsp;" value="10000" />
+					<input type="text" id="trycnt" placeholder="&nbsp;" value="10000" />
 					<label for="name">試行数</label>
 				</div>
 				<div class="textbox">
-					<input type="text" id="name" placeholder="&nbsp;" value="50" />
+					<input type="text" id="allow" placeholder="&nbsp;" value="50" />
 					<label for="name">許容差</label>
 				</div>
 
@@ -230,10 +349,10 @@ textarea.on('keyup change', function () {
 						<h3>パワー均等割り試行結果</h3>
 					</div>
 					<div class="flex_test-item">
-						<h3>許容差：30、試行数：35/100、成立数：11</h3>
+						<h3 id="result1">許容差：30、試行数：35/100、成立数：11</h3>
 					</div>
 					<div class="flex_test-item">
-						<h3>最大差：28、最小差：5、成立率：25%</h3>
+						<h3 id="result2">最大差：28、最小差：5、成立率：25%</h3>
 					</div>
 					<div class="oneset" id="oneset">
 						<div class="box22" name="box22">
@@ -243,7 +362,7 @@ textarea.on('keyup change', function () {
 							<a name="copy01" href="#" class="btn-square-so-pop">COPY</a>
 						</div>
 						<div class="flex_test-item">
-							<table align="center">
+							<table id="table01" align="center">
 							    <tbody align="center">
 							        <tr>
 							            <td>チームA</td>
