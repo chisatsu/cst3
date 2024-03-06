@@ -149,6 +149,26 @@ textarea.on('keyup change', function () {
 		  return teams;
 		};
 
+		// ターブルに行を追加する
+		const tableInsert = (tbl,arg1,arg2,arg3,arg4) => {
+
+			// 行追加＋１セル追加
+			let newRow = tbl.insertRow(-1);
+			let newCell = newRow.insertCell();
+			let newText = document.createTextNode(arg1);
+			newCell.appendChild(newText);
+
+			// ３セル追加
+			newCell = newRow.insertCell();
+			newText = document.createTextNode(arg2);
+			newCell.appendChild(newText);
+			newCell = newRow.insertCell();
+			newText = document.createTextNode(arg3);
+			newCell.appendChild(newText);
+			newCell = newRow.insertCell();
+			newText = document.createTextNode(arg4);
+			newCell.appendChild(newText);
+		}
 
 		function mainExe() {
 			
@@ -194,15 +214,11 @@ textarea.on('keyup change', function () {
 		
 			const trycnt = document.getElementById("trycnt").value;
 			const allow = document.getElementById("allow").value;
-		
-			document.getElementById("result1").innerHTML = `許容差：${allow}、試行数：${trycnt}、成立数：11`;
-			document.getElementById("result2").innerHTML = `最大差：28、最小差：5、成立率：25%`;
 			
 			const iniStr = document.getElementsByName('example')[0].value;
 			const newStr = iniStr.replaceAll('\t', ',');
 			const arrayy = newStr.split(/\r\n|\n|\r/);
 			const result = arrayy.filter( s => (0 <= s.indexOf(",")) ^ false); // ^ は XOR 排他論
-
 
 //			// カンマ区切り配列を連想配列に変換
 //			let data = {};
@@ -215,6 +231,7 @@ textarea.on('keyup change', function () {
 //				data[pow[0]] = pow[1];
 //			}
 			
+			let calcCnt = 0;
 			for (let i = 0; i < trycnt; i++) {
 
 				// カンマ区切り配列を連想配列に変換
@@ -241,36 +258,232 @@ textarea.on('keyup change', function () {
 				if (manPow - minPow > allow) {
 					continue;
 				}
+
+				if (calcCnt == 0) {
+
+					// tableのHTML要素を取得
+					const oneset = document.getElementById("oneset");
+					const tbldiv = oneset.children[1];
+					const tbldi2 = tbldiv.children[0];
+					let settbl = tbldi2.children[0];
+
+					// 最大値と最小値を設定
+					let mixPow = Infinity;
+					let maxPow = -Infinity;
+
+					let ltCnt = 0;
+					let rtCnt = 1;
+					let loutr = 0;
+					let routr = 0;
+					// 4行分テーブル書き換え
+					for (let i = 0; i < 10; i++) {
+						for (let j = 0; j < 4; j++) {
+
+							if (i == 0 || i == 5) {
+								loutr = 0;
+								routr = 0;
+								if (j == 0 && i == 5) {
+									ltCnt = ltCnt + 2;
+									rtCnt = rtCnt + 2;
+								}
+								
+								//ヘッダ行
+								if (j == 0) {
+									settbl.rows[i].cells[j].innerHTML = `チーム${( '00' + (ltCnt + 1)).slice( -2 )}`;
+								} else if (j == 1) {
+									let avgg = Math.round(average(teams[ltCnt]));
+									if (avgg < mixPow) {
+										mixPow = avgg;
+									}
+									if (avgg > maxPow) {
+										maxPow = avgg;
+									}
+									settbl.rows[i].cells[j].innerHTML = `平均：${avgg}`;
+								} else if (j == 2) {
+									settbl.rows[i].cells[j].innerHTML = `チーム${( '00' + (rtCnt + 1)).slice( -2 )}`;
+								} else if (j == 3) {
+									let avgg = Math.round(average(teams[rtCnt]));
+									if (avgg < mixPow) {
+										mixPow = avgg;
+									}
+									if (avgg > maxPow) {
+										maxPow = avgg;
+									}
+									settbl.rows[i].cells[j].innerHTML = `平均：${avgg}`;
+								}
+							} else {
+								//明細行
+
+								if (j == 0) {
+									settbl.rows[i].cells[j].innerHTML = `${teams[ltCnt][loutr].name}`;
+								} else if (j == 1) {
+									settbl.rows[i].cells[j].innerHTML = `${teams[ltCnt][loutr++].power}`;
+								} else if (j == 2) {
+									settbl.rows[i].cells[j].innerHTML = `${teams[rtCnt][routr].name}`;
+								} else if (j == 3) {
+									settbl.rows[i].cells[j].innerHTML = `${teams[rtCnt][routr++].power}`;
+								}
+							}
+						}
+					}
+
+					loutr = 0;
+					//5チーム専用
+					tableInsert(settbl,"チーム05",`平均：${Math.round(average(teams[4]))}`,"","");
+					tableInsert(settbl,`${teams[4][loutr].name}`,`${teams[4][loutr++].power}`,"","");
+					tableInsert(settbl,`${teams[4][loutr].name}`,`${teams[4][loutr++].power}`,"","");
+					tableInsert(settbl,`${teams[4][loutr].name}`,`${teams[4][loutr++].power}`,"","");
+					tableInsert(settbl,`${teams[4][loutr].name}`,`${teams[4][loutr++].power}`,"","");
+					
+					// 子要素を指定しname属性の値を変更
+					const newelement_name = oneset.children[0];
+					const newelement_powd = newelement_name.children[0];
+					newelement_powd.innerText = `パターン${( '00' + (calcCnt+1)).slice( -2 )}、最大${maxPow}、最小${mixPow}、差分${maxPow-mixPow}`;
+
+					calcCnt++;
+				} else {
+				
+					// 複製するHTML要素を取得
+					const element = document.getElementById("oneset");
+
+					// 要素を複製
+					const newelement = element.cloneNode(true);
+					const newelement_tabd = newelement.children[1];
+					const settbl = newelement_tabd.children[0];
+
+					// 最大値と最小値を設定
+					let mixPow = Infinity;
+					let maxPow = -Infinity;
+
+					let ltCnt = 0;
+					let rtCnt = 1;
+					let loutr = 0;
+					let routr = 0;
+					// テーブル書き換え
+					for (let i = 0; i < 15; i++) {
+						for (let j = 0; j < 4; j++) {
+
+							if (i == 0 || i == 5 || i == 10) {
+								loutr = 0;
+								routr = 0;
+								if (j == 0 && (i == 5 || i == 10)) {
+									ltCnt = ltCnt + 2;
+									rtCnt = rtCnt + 2;
+								}
+								
+								// 6チーム目が存在しないのでスキップ
+								if (i == 10 && j >= 2) {
+									settbl.rows[i].cells[j].innerHTML = "";
+									continue;
+								}
+								
+								//ヘッダ行
+								if (j == 0) {
+									settbl.rows[i].cells[j].innerHTML = `チーム${( '00' + (ltCnt + 1)).slice( -2 )}`;
+								} else if (j == 1) {
+									let avgg = Math.round(average(teams[ltCnt]));
+									if (avgg < mixPow) {
+										mixPow = avgg;
+									}
+									if (avgg > maxPow) {
+										maxPow = avgg;
+									}
+									settbl.rows[i].cells[j].innerHTML = `平均：${avgg}`;
+								} else if (j == 2) {
+									settbl.rows[i].cells[j].innerHTML = `チーム${( '00' + (rtCnt + 1)).slice( -2 )}`;
+								} else if (j == 3) {
+									let avgg = Math.round(average(teams[rtCnt]));
+									if (avgg < mixPow) {
+										mixPow = avgg;
+									}
+									if (avgg > maxPow) {
+										maxPow = avgg;
+									}
+									settbl.rows[i].cells[j].innerHTML = `平均：${avgg}`;
+								}
+							} else {
+								//明細行
+
+								// 6チーム目が存在しないのでスキップ
+								if (i > 10 && j >= 2) {
+									settbl.rows[i].cells[j].innerHTML = "";
+									continue;
+								}
+
+								if (j == 0) {
+									settbl.rows[i].cells[j].innerHTML = `${teams[ltCnt][loutr].name}`;
+								} else if (j == 1) {
+									settbl.rows[i].cells[j].innerHTML = `${teams[ltCnt][loutr++].power}`;
+								} else if (j == 2) {
+									settbl.rows[i].cells[j].innerHTML = `${teams[rtCnt][routr].name}`;
+								} else if (j == 3) {
+									settbl.rows[i].cells[j].innerHTML = `${teams[rtCnt][routr++].power}`;
+								}
+							}
+
+						}
+					}
+
+					// 子要素を指定しname属性の値を変更
+					const newelement_name = newelement.children[0];
+					const newelement_powd = newelement_name.children[0];
+					newelement_powd.innerText = `パターン${( '00' + (calcCnt+1)).slice( -2 )}、最大${maxPow}、最小${mixPow}、差分${maxPow-mixPow}`;
+
+					//親要素を取得し 複製した要素を追加
+					const parent = document.getElementById("loopout");
+					parent.appendChild(newelement);
+					calcCnt++;
+				}
+
 			}
-			
-			
-			
-			
-			// 複製するHTML要素を取得
-			const element = document.getElementById("oneset");
 
-			// 要素を複製
-			const newelement = element.cloneNode(true);
+			document.getElementById("result1").innerHTML = `許容差：${allow}、試行数：${trycnt}`;
+//			document.getElementById("result2").innerHTML = `成立数：${calcCnt-1}`;
+//			document.getElementById("result2").innerHTML = `成立数：${calcCnt-1}、成立率：${new Intl.NumberFormat('ja', { style: 'percent', maximumSignificantDigits: 5}).format((calcCnt-1)/trycnt*100)}%`;
+//			document.getElementById("result2").innerHTML = `成立数：${calcCnt-1}、成立率：${Math.round((calcCnt-1)/trycnt*100)}%`;
+			
+//			// 複製するHTML要素を取得
+//			const element = document.getElementById("oneset");
 
-			// 子要素を指定しname属性の値を変更
-			const newelement_name = newelement.children[0];
-			const newelement_powd = newelement_name.children[0];
-			newelement_powd.innerText = 'パターン02、最大2218、最小1199、差分500';
+//			// 要素を複製
+//			const newelement = element.cloneNode(true);
+
+//			// 子要素を指定しname属性の値を変更
+//			const newelement_name = newelement.children[0];
+//			const newelement_powd = newelement_name.children[0];
+//			newelement_powd.innerText = 'パターン02、最大2218、最小1199、差分500';
 //			newelement_name.innerText = 'パターン02、最大2218、最小1199、差分500';
 
-			const newelement_tabd = newelement.children[1];
-			const newelement_tabl = newelement_tabd.children[0];
+//			const newelement_tabd = newelement.children[1];
+//			const newelement_tabl = newelement_tabd.children[0];
 
-			// テーブル書き換え
-			for (let i = 0; i < 10; i++) {
-				for (let j = 0; j < 4; j++) {
-					newelement_tabl.rows[i].cells[j].innerHTML = `i=${i},j=${j}`;
-				}
-			}
+//			// テーブル書き換え
+//			for (let i = 0; i < 10; i++) {
+//				for (let j = 0; j < 4; j++) {
+//					newelement_tabl.rows[i].cells[j].innerHTML = `i=${i},j=${j}`;
+//				}
+//			}
+			
+//			// 行追加＋１セル追加
+//			let newRow = newelement_tabl.insertRow(-1); //引数-1 : 表の一番最後に1行追加
+//			let newCell = newRow.insertCell();
+//			let newText = document.createTextNode('山田');
+//			newCell.appendChild(newText);
 
-			//親要素を取得し 複製した要素を追加
-			const parent = document.getElementById("loopout");
-			parent.appendChild(newelement);
+//			// ３セル追加
+//			newCell = newRow.insertCell();
+//			newText = document.createTextNode(18);
+//			newCell.appendChild(newText);
+//			newCell = newRow.insertCell();
+//			newText = document.createTextNode(18);
+//			newCell.appendChild(newText);
+//			newCell = newRow.insertCell();
+//			newText = document.createTextNode(18);
+//			newCell.appendChild(newText);
+
+//			//親要素を取得し 複製した要素を追加
+//			const parent = document.getElementById("loopout");
+//			parent.appendChild(newelement);
 
 
 // table要素を取得
@@ -377,10 +590,10 @@ textarea.on('keyup change', function () {
 						<h3>パワー均等割り試行結果</h3>
 					</div>
 					<div class="flex_test-item">
-						<h3 id="result1">許容差：30、試行数：35/100、成立数：11</h3>
+						<h3 id="result1">許容差：30、試行数：5000</h3>
 					</div>
 					<div class="flex_test-item">
-						<h3 id="result2">最大差：28、最小差：5、成立率：25%</h3>
+						<h3 id="result2">成立数：11、成立率：25%</h3>
 					</div>
 					<div class="Zoneset" id="oneset">
 						<div class="box22" name="box22">
@@ -458,7 +671,7 @@ textarea.on('keyup change', function () {
 					</div>
 				</div>
 				<div class="flex_test-item">
-					<a href="#" class="btn_03" onclick="p3bak()">戻る</a>
+					<!-- <a href="#" class="btn_03" onclick="p3bak()">戻る</a> -->
 				</div>
 			</div>
 		    <!--▲結果画面▲-->  
