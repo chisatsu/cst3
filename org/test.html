@@ -82,19 +82,21 @@ textarea.on('keyup change', function () {
 			// クリップボードにコピー
 			navigator.clipboard.writeText("コピーしたテキスト");
 		}
+		
+		//=====================================================================
 
 		// パワーの合計を求める関数
 		const sum = (array) => {
 		  let total = 0;
 		  for (let item of array) {
-		    total += item.power;
+		    total += Number(item.power);
 		  }
 		  return total;
 		};
 
 		// パワーの平均を求める関数
 		const average = (array) => {
-		  return sum(array) / array.length;
+		  return sum(array) / Object.keys(array).length;
 		};
 
 		// パワーの差の絶対値を求める関数
@@ -107,7 +109,7 @@ textarea.on('keyup change', function () {
 		  // チームの人数
 		  const teamSize = 4;
 		  // チームの数
-		  const teamNum = array.length / teamSize;
+		  const teamNum = Object.keys(array).length / teamSize;
 		  // チームの配列
 		  const teams = [];
 		  // パワーの平均の配列
@@ -124,8 +126,9 @@ textarea.on('keyup change', function () {
 		    // チームに人を追加する
 		    for (let j = 0; j < teamSize; j++) {
 		      // データからランダムに要素を選ぶ
-		      let index = Math.floor(Math.random() * array.length);
+		      let index = Math.floor(Math.random() * Object.keys(array).length);
 		      // 選んだ要素をチームに追加する
+		      //team.push(array.slice(index));
 		      team.push(array[index]);
 		      // データから選んだ要素を削除する
 		      array.splice(index, 1);
@@ -151,8 +154,8 @@ textarea.on('keyup change', function () {
 			
 			const iniStr = document.getElementsByName('example')[0].value;
 			const newStr = iniStr.replaceAll('\t', ',');
-			const array = newStr.split(/\r\n|\n|\r/);
-			const result = array.filter( s => (0 <= s.indexOf(",")) ^ false); // ^ は XOR 排他論
+			const arrayy = newStr.split(/\r\n|\n|\r/);
+			const result = arrayy.filter( s => (0 <= s.indexOf(",")) ^ false); // ^ は XOR 排他論
 
 			// パワーの最小値
 			let minPow = Infinity;
@@ -197,23 +200,48 @@ textarea.on('keyup change', function () {
 			
 			const iniStr = document.getElementsByName('example')[0].value;
 			const newStr = iniStr.replaceAll('\t', ',');
-			const array = newStr.split(/\r\n|\n|\r/);
-			const result = array.filter( s => (0 <= s.indexOf(",")) ^ false); // ^ は XOR 排他論
+			const arrayy = newStr.split(/\r\n|\n|\r/);
+			const result = arrayy.filter( s => (0 <= s.indexOf(",")) ^ false); // ^ は XOR 排他論
 
-			// パワーの最小値
-			let minPow = Infinity;
-			// パワーの最大値
-			let manPow = -Infinity;
-			// パワーの合計
-			let total = 0;
 
-			// カンマ区切り配列を連想配列に変換
-			let data = {};
-			for (let i = 0; i < result.length; i++) {
-				let pow = result[i].split(',');
-				data[pow[0]] = pow[1];
-			}
+//			// カンマ区切り配列を連想配列に変換
+//			let data = {};
+//			let data = [{ name: result[0].split(',')[0], power: result[0].split(',')[1] }];
+//			let data = new Array();
+//			for (let i = 1; i < result.length; i++) {
+//			for (let i = 0; i < result.length; i++) {
+//				let pow = result[i].split(',');
+//				data.push({ name: result[i].split(',')[0], power: result[i].split(',')[1] });
+//				data[pow[0]] = pow[1];
+//			}
 			
+			for (let i = 0; i < trycnt; i++) {
+
+				// カンマ区切り配列を連想配列に変換
+				let data = [{ name: result[0].split(',')[0], power: result[0].split(',')[1] }];
+				for (let i = 1; i < result.length; i++) {
+					data.push({ name: result[i].split(',')[0], power: result[i].split(',')[1] });
+				}
+
+				// チームを分ける
+				let teams = divide(data);
+
+				// チーム差を確認する
+				let minPow = Infinity;
+				let manPow = -Infinity;
+				for (let j = 0; j < teams.length; j++) {
+					let avgg = average(teams[j]);
+					if (avgg < minPow) {
+						minPow = avgg;
+					}
+					if (avgg > manPow) {
+						manPow = avgg;
+					}
+				}
+				if (manPow - minPow > allow) {
+					continue;
+				}
+			}
 			
 			
 			
@@ -354,7 +382,7 @@ textarea.on('keyup change', function () {
 					<div class="flex_test-item">
 						<h3 id="result2">最大差：28、最小差：5、成立率：25%</h3>
 					</div>
-					<div class="oneset" id="oneset">
+					<div class="Zoneset" id="oneset">
 						<div class="box22" name="box22">
 							<div class="teampow01" id="teampow01">
 								<p name="head01">パターン01、最大2258、最小2253、差分5</p>
