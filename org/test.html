@@ -185,7 +185,7 @@ textarea.on('keyup change', function () {
 			let total = 0;
 
 			for (let i = 0; i < result.length; i++) {
-				console.log(`${i + 1}:${result[i]}`);
+				//console.log(`${i + 1}:${result[i]}`);
 				let pow = result[i].split(',');
 				if (pow[1] < minPow) {
 					minPow = pow[1];
@@ -230,6 +230,9 @@ textarea.on('keyup change', function () {
 //				data.push({ name: result[i].split(',')[0], power: result[i].split(',')[1] });
 //				data[pow[0]] = pow[1];
 //			}
+			
+			//
+			const teamSu = Math.round(result.length/4);
 			
 			let calcCnt = 0;
 			for (let i = 0; i < trycnt; i++) {
