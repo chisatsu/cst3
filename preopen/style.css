@@ -1,0 +1,423 @@
+
+/*--------------------------------------  
+　   ベーススタイル  
+---------------------------------------*/  
+
+/* 上下中央にしたい親要素に適用してください */
+.parent {
+  display: flex;
+  justify-content: center;/* 左右中央を指定しています */
+  align-items: center;/* 上下中央を指定しています */
+  height: 80vh;/* 高さは適宜変更してください */
+}
+
+/* 外枠 */
+.flex_test-box {
+    background-color: #eee;     /* 背景色指定 */
+    padding:  10px;             /* 余白指定 */
+}
+
+/* 内枠 */
+.flex_test-item {
+    display: flex;
+    padding: 5px;
+    color:  #fff;               /* 文字色 */
+    margin:  5px;              /* 外側の余白 */
+    border-radius:  5px;        /* 角丸指定 */
+}
+
+/*--------------------------------------  
+　   ボタン  
+---------------------------------------*/  
+
+/* 角丸オレンジボタン */
+.btn--orange,
+a.btn--orange {
+  color: #fff;
+  background-color: #eb6100;
+}
+.btn--orange:hover,
+a.btn--orange:hover {
+  color: #fff;
+  background: #f56500;
+}
+
+/* 角丸白ボタン */
+a.btn_03 {
+	display: block;
+	text-align: center;
+	vertical-align: middle;
+	text-decoration: none;
+	width: 50px;
+	margin: auto;
+	padding: 1rem 4rem;
+	font-weight: bold;
+	border: 2px solid #27acd9;
+	color: #27acd9;
+	border-radius: 100vh;
+	transition: 0.5s;
+}
+a.btn_03:hover {
+	color: #fff;
+	background: #27acd9;
+}
+
+/* 角丸青ボタン */
+a.btn_04 {
+	display: block;
+	text-align: center;
+	vertical-align: middle;
+	text-decoration: none;
+	width: 50px;
+	margin: auto;
+	padding: 1rem 4rem;
+	font-weight: bold;
+	border: 2px solid #27acd9;
+	background: #27acd9;
+	color: #fff;
+	border-radius: 100vh;
+	transition: 0.5s;
+}
+a.btn_04:hover {
+	color: #27acd9;
+	background: #fff;
+}
+
+/* 矢印付きボタン */
+a.btn_12 {
+	display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+	text-align: center;
+	text-decoration: none;
+	width: 60px;
+	margin: 10px;
+	padding: 0.5rem 2rem 0.5rem 1.5rem;
+	font-weight: bold;
+	background: #27acd9;
+	color: #fff;
+	border-radius: 100vh;
+	position: relative;
+	transition: 0.5s;
+}
+a.btn_12::before {
+	content: '';
+	width: 7px;
+	height: 7px;
+	border-top: 2px solid #fff;
+	border-right: 2px solid #fff;
+	transform: rotate(45deg);
+}
+a.btn_12:hover {
+	background: #44c6f2;
+	color: #fff;
+}
+a.btn_13 {
+	display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+	text-align: center;
+	text-decoration: none;
+	width: 60px;
+	margin: 10px;
+	padding: 0.5rem 2rem 0.5rem 1.5rem;
+	font-weight: bold;
+	background: #cccccc;
+	color: #fff;
+	border-radius: 100vh;
+	position: relative;
+	transition: 0.5s;
+}
+a.btn_13::before {
+	content: '';
+	width: 7px;
+	height: 7px;
+	border-top: 2px solid #fff;
+	border-right: 2px solid #fff;
+	transform: rotate(45deg);
+}
+a.btn_13:hover {
+	background: #aaaaaa;
+	color: #fff;
+}
+
+.btn-square-so-pop {
+  position: relative;
+  display: inline-block;
+  padding: 0.25em 0.5em;
+  text-decoration: none;
+  color: #FFF;
+  background: #6ad1c8;/*色*/
+  border-radius: 4px;/*角の丸み*/
+  box-shadow: inset 0 2px 0 rgba(255,255,255,0.2), inset 0 -2px 0 rgba(0, 0, 0, 0.05);
+  font-weight: bold;
+  border: solid 2px #FFF;/*線色*/
+}
+
+.btn-square-so-pop:active {
+  /*押したとき*/
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.30);
+}
+
+/*--------------------------------------  
+　   表形式（没）  
+---------------------------------------*/  
+
+.container {
+    border: 2px solid #ccc;
+    background-color: #E4EDE8;
+    margin-bottom: 30px;
+    display: flex;
+}
+
+.box {
+    color: #fff;
+    font-weight: bold;
+    text-align: center;
+    line-height: 100px;
+    background-color: #3CB371;
+    margin: 20px;
+    width: 100px;
+}
+
+
+/*--------------------------------------  
+　   ボックス
+---------------------------------------*/  
+
+.box29 {
+    margin: 2em 0;
+    background: #dcefff;
+}
+.box29 .box-title {
+    font-size: 1.2em;
+    background: #5fb3f5;
+    padding: 4px;
+    text-align: center;
+    color: #FFF;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+}
+.box29 p {
+    padding: 15px 20px;
+    margin: 0;
+}
+
+.box22{
+    padding: 0.5em 1em;
+    margin: 1em 0;
+    background: #f4f4f4;
+    border-left: solid 6px #5bb7ae;
+    box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.33);
+}
+.box22 p {
+    margin: 0; 
+    padding: 0;
+}
+/*--------------------------------------  
+　   ラベル  
+---------------------------------------*/  
+
+
+h2#ninzu {
+  line-height: 5px;
+  color: #000000;
+}
+h2#ninzu:first-letter {
+  font-size: 150%;
+  color: #eb6100;
+}
+h2#teams {
+  line-height: 5px;
+  color: #000000;
+}
+h2#teams:first-letter {
+  font-size: 150%;
+  color: #eb6100;
+}
+h2#taisg {
+  line-height: 5px;
+  color: #000000;
+}
+h2#taisg:first-letter {
+  font-size: 150%;
+  color: #eb6100;
+}
+h2#maxpw {
+  line-height: 5px;
+  color: #000000;
+}
+h2#maxpw:first-letter {
+  font-size: 150%;
+  color: #eb6100;
+}
+h2#avgpw {
+  line-height: 5px;
+  color: #000000;
+}
+h2#avgpw:first-letter {
+  font-size: 150%;
+  color: #eb6100;
+}
+h2#mixpw {
+  line-height: 5px;
+  color: #000000;
+}
+h2#mixpw:first-letter {
+  font-size: 150%;
+  color: #eb6100;
+}
+h2#or {
+  line-height: 5px;
+  color: #000000;
+}
+h2#or:first-letter {
+  font-size: 150%;
+  color: #eb6100;
+}
+
+h3 {
+  position: relative;
+  color: #000;
+}
+h3:after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 7px;
+  background: -webkit-repeating-linear-gradient(-45deg, #6ad1c8, #6ad1c8 2px, #fff 2px, #fff 4px);
+  background: repeating-linear-gradient(-45deg, #6ad1c8, #6ad1c8 2px, #fff 2px, #fff 4px);
+}
+h3#result1 {
+  position: relative;
+  color: #000;
+}
+h3#result1:after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 7px;
+  background: -webkit-repeating-linear-gradient(-45deg, #6ad1c8, #6ad1c8 2px, #fff 2px, #fff 4px);
+  background: repeating-linear-gradient(-45deg, #6ad1c8, #6ad1c8 2px, #fff 2px, #fff 4px);
+}
+h3#result2 {
+  position: relative;
+  color: #000;
+}
+h3#result2:after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 7px;
+  background: -webkit-repeating-linear-gradient(-45deg, #6ad1c8, #6ad1c8 2px, #fff 2px, #fff 4px);
+  background: repeating-linear-gradient(-45deg, #6ad1c8, #6ad1c8 2px, #fff 2px, #fff 4px);
+}
+
+/*--------------------------------------  
+　   テキストボックス  
+---------------------------------------*/  
+
+.textbox {
+  position: relative;
+  width: 450px;
+  margin: 30px auto;
+}
+label {
+	position: absolute;
+	top: 0px;
+	color: #a9a9a9;
+	font-size: 1.4rem;
+	transition: all ease-in-out 0.3s;
+}
+input {
+	display: block;
+	width: 450px;
+	padding: 5px 0;
+	border: none;
+	border-bottom: solid 1px #1abc9c;
+	background: linear-gradient(to bottom, transparent 92%, #1abc9c 8%) no-repeat;
+	background-position: -300px 0;
+	background-size: 500px 100%;
+	font-size: 1.4rem;
+	transition: all ease-in-out 0.3s;
+	&:focus,
+	&:not(:placeholder-shown) {
+		background-position: 0 0;
+		outline: none;
+		+ label {
+			top: -12px;
+			color: #1abc9c;
+			font-size: 1rem;
+		}
+	}
+}
+
+
+
+/*--------------------------------------  
+　   表形式  
+---------------------------------------*/  
+
+th,td {
+    border: solid 1px;          /* 枠線指定 */
+    background-color: #fff;
+}
+th,td#gg {
+    border: solid 1px;          /* 枠線指定 */
+    background-color: #eee;
+}
+
+table {
+    border-collapse:  collapse; /* セルの線を重ねる */
+    width:  100%;               /* 幅指定 */
+    table-layout: fixed;        /* セルの幅計算指定 */
+    color: #000;
+}
+
+
+/*--------------------------------------  
+　   プレースホルダ
+---------------------------------------*/  
+
+.textareaDiv {
+ position: relative;
+}
+textarea {
+ opacity: .7;
+}
+.textareaDiv #placeholderDiv {
+ position: absolute;
+ top: 15px;
+ left: 15px;
+ font-size: 14px;
+}
+.textareaDiv #placeholderDiv.none {
+ display: none;
+}
+
+
+
+/*--------------------------------------  
+　   テキストエリア
+---------------------------------------*/  
+
+.big { font-size:12pt; }
+
+
+
+
+
+/*--------------------------------------  
+　   スクロール用
+---------------------------------------*/  
+
+.loopout{
+   height: 800px;
+   overflow: auto;
+}
