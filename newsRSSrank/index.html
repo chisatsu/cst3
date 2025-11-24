@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSSフィードビューアー</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>RSSフィードビューアー</h1>
+    </header>
+
+    <main>
+        <section id="rss-sites">
+            <h2>RSS提供サイトリスト (100選)</h2>
+            <ul id="site-list">
+                <!-- JavaScriptでサイトのリストをここに挿入 -->
+            </ul>
+        </section>
+
+        <section id="selected-site-feed" style="display: none;">
+            <h2 id="selected-site-name"></h2>
+            <div id="rss-articles">
+                <!-- JavaScriptで選択されたサイトのRSS記事をここに挿入 -->
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 RSSフィードビューアー</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

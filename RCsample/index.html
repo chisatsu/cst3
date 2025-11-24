@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人物評価レーダーチャートと折れ線グラフ</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="fixed-header">
+        <div id="messageArea" class="message-area"></div>
+        <div class="top-controls">
+            <div class="select-group">
+                <label for="who">誰が</label>
+                <select id="who">
+                    <option value="佐藤">佐藤</option>
+                    <option value="田中">田中</option>
+                    <option value="鈴木">鈴木</option>
+                    <option value="中村">中村</option>
+                </select>
+            </div>
+            <div class="select-group">
+                <label for="toWho">誰に</label>
+                <select id="toWho">
+                    <option value="佐藤">佐藤</option>
+                    <option value="田中">田中</option>
+                    <option value="鈴木">鈴木</option>
+                    <option value="中村">中村</option>
+                </select>
+            </div>
+            <button id="refreshButton" class="nav-button orange-button">リフレッシュ</button>
+            <button id="updateButton" class="nav-button orange-button">更新</button>
+            <button id="graphButton" class="nav-button">グラフ</button>
+            <button id="resultTableButton" class="nav-button">結果表</button>
+            <button id="topButton" class="nav-button">トップボタン</button>
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+        <div class="questions-section">
+            <h2>評価項目</h2>
+            <div class="question-group">
+                <label>この人は、物事を前向きに捉えるタイプだと思いますか？</label>
+                <div class="slider-control">
+                    <div class="slider-labels"><span>後ろ向き</span><span>前向き</span></div>
+                    <input type="range" min="-100" max="100" value="0" class="slider" data-label="前向き">
+                    <span class="slider-value">0</span>
+                </div>
+            </div>
+            <div class="question-group">
+                <label>この人は、周囲に対してオープンで率直な印象がありますか？</label>
+                <div class="slider-control">
+                    <div class="slider-labels"><span>内向的</span><span>開放的</span></div>
+                    <input type="range" min="-100" max="100" value="0" class="slider" data-label="開放的">
+                    <span class="slider-value">0</span>
+                </div>
+            </div>
+            <div class="question-group">
+                <label>この人は、感情よりも論理を優先する傾向があると思いますか？</label>
+                <div class="slider-control">
+                    <div class="slider-labels"><span>感情重視</span><span>論理重視</span></div>
+                    <input type="range" min="-100" max="100" value="0" class="slider" data-label="論理重視">
+                    <span class="slider-value">0</span>
+                </div>
+            </div>
+            <div class="question-group">
+                <label>この人は、リーダーシップを発揮する場面が多いと思いますか？</label>
+                <div class="slider-control">
+                    <div class="slider-labels"><span>支援型</span><span>主導型</span></div>
+                    <input type="range" min="-100" max="100" value="0" class="slider" data-label="主導型">
+                    <span class="slider-value">0</span>
+                </div>
+            </div>
+            <div class="question-group">
+                <label>この人は、計画的に物事を進めるタイプだと思いますか？</label>
+                <div class="slider-control">
+                    <div class="slider-labels"><span>即興派</span><span>計画派</span></div>
+                    <input type="range" min="-100" max="100" value="0" class="slider" data-label="計画派">
+                    <span class="slider-value">0</span>
+                </div>
+            </div>
+            <div class="question-group">
+                <label>この人は、周囲の意見をよく聞くタイプだと思いますか？</label>
+                <div class="slider-control">
+                    <div class="slider-labels"><span>自己主張型</span><span>傾聴型</span></div>
+                    <input type="range" min="-100" max="100" value="0" class="slider" data-label="傾聴型">
+                    <span class="slider-value">0</span>
+                </div>
+            </div>
+            <div class="question-group">
+                <label>この人は、プロセスよりも結果を重視するタイプだと思いますか？</label>
+                <div class="slider-control">
+                    <div class="slider-labels"><span>プロセス重視</span><span>結果重視</span></div>
+                    <input type="range" min="-100" max="100" value="0" class="slider" data-label="プロセス重視">
+                    <span class="slider-value">0</span>
+                </div>
+            </div>
+            <div class="question-group">
+                <label>この人は、自己管理がしっかりできていると思いますか？</label>
+                <div class="slider-control">
+                    <div class="slider-labels"><span>感情に流されやすい型</span><span>自己管理型</span></div>
+                    <input type="range" min="-100" max="100" value="0" class="slider" data-label="自己管理型">
+                    <span class="slider-value">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-section" id="radarChartSection">
+            <h2>評価レーダーチャート</h2>
+            <canvas id="radarChart"></canvas>
+        </div>
+
+        <div class="chart-section line-chart-section" id="lineChartSection">
+            <h2>評価折れ線グラフ</h2>
+            <canvas id="lineChart"></canvas>
+        </div>
+
+        <div class="result-table-section" id="resultTableSection">
+            <h2>結果表</h2>
+            <div class="table-container">
+                <table id="resultTable">
+                    <thead>
+                        <tr>
+                            <th>選択</th>
+                            <th>誰が</th>
+                            <th>誰に</th>
+                            <th>前向き</th>
+                            <th>開放的</th>
+                            <th>論理重視</th>
+                            <th>主導型</th>
+                            <th>計画派</th>
+                            <th>傾聴型</th>
+                            <th>プロセス重視</th>
+                            <th>自己管理型</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 結果がここに追加されます -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 1rem 0;
+    text-align: center;
+}
+
+main {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 20px;
+}
+
+section {
+    background-color: #fff;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#site-list {
+    list-style: none;
+    padding: 0;
+}
+
+#site-list li {
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+#site-list li:hover {
+    background-color: #f9f9f9;
+}
+
+#site-list li h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #007bff;
+    flex-basis: 30%;
+}
+
+#site-list li p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #666;
+    flex-basis: 70%;
+}
+
+.rss-article {
+    margin-bottom: 15px;
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+.rss-article h3 {
+    margin-top: 0;
+    font-size: 1.2rem;
+}
+
+.rss-article p {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.rss-article a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.rss-article a:hover {
+    text-decoration: underline;
+}
