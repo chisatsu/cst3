@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI RADIO</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c28;
+    --border: rgba(255,255,255,0.08);
+    --accent: #ff4d6d;
+    --accent2: #c77dff;
+    --wave3: #4cc9f0;
+    --text: #f0eff5;
+    --muted: #8884a0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg); color: var(--text);
+    min-height: 100vh; overflow-x: hidden;
+  }
+  .app {
+    max-width: 800px; margin: 0 auto;
+    padding: 24px 20px;
+    display: flex; flex-direction: column; gap: 18px;
+  }
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 14px; border-bottom: 1px solid var(--border);
+  }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--accent); box-shadow: 0 0 12px var(--accent);
+    animation: pdot 2s ease-in-out infinite;
+  }
+  @keyframes pdot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.7)} }
+  .logo-dot.live { animation: plive 1s ease-in-out infinite; }
+  @keyframes plive { 0%,100%{box-shadow:0 0 12px var(--accent)} 50%{box-shadow:0 0 22px var(--accent)} }
+  .logo h1 {
+    font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:700;
+    background: linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  .badge {
+    font-size:10px; font-weight:600; letter-spacing:.08em; padding:3px 8px;
+    border-radius:20px; background:rgba(255,77,109,.15); color:var(--accent);
+    border:1px solid rgba(255,77,109,.3); text-transform:uppercase;
+  }
+  .controls-row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  select {
+    background:var(--surface); border:1px solid var(--border);
+    color:var(--text); padding:8px 14px; border-radius:8px;
+    font-size:13px; font-family:'Noto Sans JP',sans-serif; cursor:pointer; outline:none;
+  }
+  select:focus { border-color:var(--accent2); }
+  .btn {
+    padding:8px 18px; border-radius:8px; border:none;
+    font-size:13px; font-weight:600; cursor:pointer;
+    font-family:'Noto Sans JP',sans-serif; transition:all .15s ease;
+    display:flex; align-items:center; gap:6px;
+  }
+  .btn-primary {
+    background:var(--accent); color:white;
+    box-shadow:0 0 16px rgba(255,77,109,.4);
+  }
+  .btn-primary:hover { background:#ff6b84; transform:translateY(-1px); }
+  .btn-primary:active { transform:scale(.97); }
+  .btn-secondary {
+    background:var(--surface2); color:var(--text);
+    border:1px solid var(--border);
+  }
+  .btn-secondary:hover { border-color:var(--accent2); }
+  .btn:disabled { opacity:.4; cursor:not-allowed; transform:none !important; }
+  .player-card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:20px; padding:28px; position:relative; overflow:hidden;
+  }
+  .player-card::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2),var(--wave3));
+  }
+  .now-label { font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:12px; }
+  .article-title { font-size:18px; font-weight:700; line-height:1.4; margin-bottom:8px; min-height:50px; }
+  .article-meta {
+    font-size:12px; color:var(--muted);
+    display:flex; align-items:center; gap:12px; margin-bottom:20px; flex-wrap:wrap;
+  }
+  .tag {
+    padding:3px 10px; border-radius:20px; font-size:11px; font-weight:500;
+    background:rgba(199,125,255,.15); color:var(--accent2);
+    border:1px solid rgba(199,125,255,.25);
+  }
+  .waveform { height:60px; display:flex; align-items:center; gap:2px; margin:16px 0; overflow:hidden; }
+  .wave-bar { flex:1; border-radius:2px; background:var(--accent); opacity:.25; transform-origin:center; }
+  .wave-bar.active { opacity:.8; animation:wanim .6s ease-in-out infinite alternate; }
+  @keyframes wanim { 0%{transform:scaleY(var(--base))} 100%{transform:scaleY(calc(var(--base)*2.5))} }
+  .player-controls { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .progress-area { flex:1; min-width:200px; }
+  .prog-bg { height:4px; background:var(--surface2); border-radius:4px; overflow:hidden; margin-bottom:6px; }
+  .prog-fill {
+    height:100%; border-radius:4px; width:0%;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    transition:width .3s linear;
+  }
+  .time-row { display:flex; justify-content:space-between; font-size:11px; color:var(--muted); }
+  .speed-btn {
+    background:var(--surface2); border:1px solid var(--border);
+    color:var(--text); padding:6px 12px; border-radius:6px;
+    font-size:12px; font-weight:600; cursor:pointer;
+    font-family:'Space Grotesk',sans-serif;
+  }
+  .speed-btn:hover { border-color:var(--accent2); }
+  .vol-area { display:flex; align-items:center; gap:8px; }
+  input[type=range] {
+    -webkit-appearance:none; height:4px; border-radius:4px;
+    background:var(--surface2); outline:none; width:80px;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance:none; width:14px; height:14px; border-radius:50%;
+    background:var(--accent2); cursor:pointer; border:2px solid var(--bg);
+  }
+  .status-bar {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; padding:12px 16px; font-size:13px; color:var(--muted);
+    display:flex; align-items:center; gap:8px; min-height:44px;
+  }
+  .spinner {
+    width:14px; height:14px; border:2px solid var(--border);
+    border-top-color:var(--accent); border-radius:50%;
+    animation:spin .6s linear infinite; flex-shrink:0;
+  }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  .section-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+  .section-title { font-size:13px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
+  .queue-list { display:flex; flex-direction:column; gap:8px; }
+  .queue-item {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; padding:14px 16px; cursor:pointer;
+    transition:all .15s ease; position:relative; overflow:hidden;
+  }
+  .queue-item::after {
+    content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+    background:var(--accent); opacity:0; border-radius:3px 0 0 3px; transition:opacity .15s;
+  }
+  .queue-item:hover { border-color:rgba(255,255,255,.15); transform:translateX(3px); }
+  .queue-item:hover::after { opacity:1; }
+  .queue-item.playing { border-color:rgba(255,77,109,.4); background:rgba(255,77,109,.05); }
+  .queue-item.playing::after { opacity:1; }
+  .queue-item-title { font-size:14px; font-weight:500; margin-bottom:4px; line-height:1.35; }
+  .queue-item-meta { font-size:11px; color:var(--muted); display:flex; gap:10px; }
+  .num-badge {
+    width:22px; height:22px; border-radius:50%; background:var(--surface2);
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:600; color:var(--muted);
+    flex-shrink:0; margin-right:8px; margin-top:2px;
+  }
+  .queue-item.playing .num-badge { background:var(--accent); color:white; }
+  .qi-inner { display:flex; align-items:flex-start; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo">
+      <div class="logo-dot" id="liveDot"></div>
+      <h1>AI RADIO</h1>
+    </div>
+    <div class="badge" id="liveLabel">STANDBY</div>
+  </header>
+
+  <div class="controls-row">
+    <select id="catSel">
+      <option value="general">総合トレンド</option>
+      <option value="tech">テクノロジー</option>
+      <option value="entertainment">エンタメ・芸能</option>
+      <option value="sports">スポーツ</option>
+      <option value="politics">政治・社会</option>
+      <option value="business">ビジネス・経済</option>
+    </select>
+    <select id="voiceSel" style="min-width:160px;"><option>音声を選択中...</option></select>
+    <button class="btn btn-primary" id="genBtn" onclick="generateQueue()">▶ 番組を生成</button>
+    <button class="btn btn-secondary" onclick="loadVoices()" title="音声リスト更新">🔄</button>
+  </div>
+
+  <div class="player-card">
+    <div class="now-label">NOW PLAYING</div>
+    <div class="article-title" id="artTitle">番組を生成してください</div>
+    <div class="article-meta" id="artMeta">
+      <span class="tag">AI生成</span>
+      <span>Twitterトレンドをもとに番組を生成します</span>
+    </div>
+    <div class="waveform" id="waveform"></div>
+    <div class="player-controls">
+      <button class="btn btn-secondary" id="prevBtn" onclick="playPrev()" disabled>⏮</button>
+      <button class="btn btn-primary" id="ppBtn" onclick="togglePlay()" disabled>▶</button>
+      <button class="btn btn-secondary" id="nextBtn" onclick="playNext()" disabled>⏭</button>
+      <div class="progress-area">
+        <div class="prog-bg"><div class="prog-fill" id="progFill"></div></div>
+        <div class="time-row"><span id="curTime">0:00</span><span id="totTime">0:00</span></div>
+      </div>
+      <button class="speed-btn" id="speedBtn" onclick="cycleSpeed()">1x</button>
+      <div class="vol-area">
+        <span style="font-size:14px">🔊</span>
+        <input type="range" min="0" max="1" step="0.05" value="1" oninput="setVol(this.value)">
+      </div>
+    </div>
+  </div>
+
+  <div class="status-bar" id="statusBar"><span>「番組を生成」をクリックしてください</span></div>
+
+  <div>
+    <div class="section-header">
+      <div class="section-title">放送キュー</div>
+      <div id="qCount" style="font-size:12px;color:var(--muted)">0件</div>
+    </div>
+    <div class="queue-list" id="qList">
+      <div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">番組を生成するとここにニュース一覧が表示されます</div>
+    </div>
+  </div>
+</div>
+
+<script>
+let queue=[], curIdx=-1, utt=null, synth=window.speechSynthesis;
+let isPlaying=false, speed=1, voices=[], progInterval=null;
+let startTime=0, estDur=0, elapsed=0, volume=1;
+
+function loadVoices(){
+  voices=synth.getVoices();
+  const sel=document.getElementById('voiceSel');
+  sel.innerHTML='';
+  const ja=voices.filter(v=>v.lang.startsWith('ja'));
+  const others=voices.filter(v=>!v.lang.startsWith('ja'));
+  if(ja.length){
+    const og=document.createElement('optgroup'); og.label='日本語';
+    ja.forEach(v=>{ const o=document.createElement('option'); o.value=v.name; o.textContent=v.name+(v.default?' ★':''); og.appendChild(o); });
+    sel.appendChild(og);
+  }
+  if(others.length){
+    const og=document.createElement('optgroup'); og.label='その他';
+    others.slice(0,10).forEach(v=>{ const o=document.createElement('option'); o.value=v.name; o.textContent=v.name; og.appendChild(o); });
+    sel.appendChild(og);
+  }
+  if(!sel.options.length){ const o=document.createElement('option'); o.textContent='デフォルト音声'; sel.appendChild(o); }
+}
+if(synth.onvoiceschanged!==undefined) synth.onvoiceschanged=loadVoices;
+loadVoices();
+
+function buildWave(){
+  const wf=document.getElementById('waveform'); wf.innerHTML='';
+  for(let i=0;i<48;i++){
+    const b=document.createElement('div'); b.className='wave-bar';
+    const h=0.15+Math.random()*0.7;
+    b.style.cssText=`--base:${h};height:${h*60}px;`; wf.appendChild(b);
+  }
+}
+buildWave();
+
+function setWave(on){ document.querySelectorAll('.wave-bar').forEach((b,i)=>setTimeout(()=>on?b.classList.add('active'):b.classList.remove('active'),i*8)); }
+
+function setStatus(msg,loading=false){
+  document.getElementById('statusBar').innerHTML=loading
+    ?`<div class="spinner"></div><span>${msg}</span>`
+    :`<span>${msg}</span>`;
+}
+
+const catLabels={general:'総合トレンド',tech:'テクノロジー',entertainment:'エンタメ・芸能',sports:'スポーツ',politics:'政治・社会',business:'ビジネス・経済'};
+
+async function generateQueue(){
+  const cat=document.getElementById('catSel').value;
+  const btn=document.getElementById('genBtn');
+  btn.disabled=true;
+  setStatus('Claude AIが番組を生成中...', true);
+  document.getElementById('liveLabel').textContent='LOADING';
+
+  const prompt=`あなたはプロのAIラジオパーソナリティです。
+現在のTwitter（X）の${catLabels[cat]}カテゴリのトレンドトピックをもとに、
+ラジオ番組のニュースキューを5件生成してください。
+
+各ニュースには以下を含めてください：
+- タイトル（30字以内、キャッチーに）
+- カテゴリタグ（1つ）
+- ラジオ原稿（200〜280字。親しみやすく、テンポよく読める文章。「〜ですね」「〜でしょう」など話し言葉。最後に一言コメントをつける。）
+
+JSONのみ返してください。マークダウンや説明文は不要です：
+{"items":[{"title":"タイトル","tag":"タグ","script":"原稿テキスト"}]}`;
+
+  try {
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:2000,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    if(!res.ok){ const e=await res.json(); throw new Error(e.error?.message||`HTTP ${res.status}`); }
+    const data=await res.json();
+    const text=data.content[0].text;
+    const clean=text.replace(/```json|```/g,'').trim();
+    const parsed=JSON.parse(clean);
+    queue=parsed.items||[];
+    curIdx=-1;
+    renderQueue();
+    setStatus(`${queue.length}件の番組を生成しました。▶ ボタンで再生開始`);
+    btn.disabled=false;
+    document.getElementById('ppBtn').disabled=false;
+    document.getElementById('liveLabel').textContent='READY';
+  } catch(e) {
+    setStatus('エラー: '+e.message);
+    btn.disabled=false;
+    document.getElementById('liveLabel').textContent='ERROR';
+  }
+}
+
+function renderQueue(){
+  const list=document.getElementById('qList');
+  document.getElementById('qCount').textContent=queue.length+'件';
+  if(!queue.length){ list.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">キューが空です</div>'; return; }
+  list.innerHTML=queue.map((item,i)=>`
+    <div class="queue-item ${i===curIdx?'playing':''}" onclick="playItem(${i})">
+      <div class="qi-inner">
+        <div class="num-badge">${i===curIdx?'▶':i+1}</div>
+        <div style="flex:1">
+          <div class="queue-item-title">${item.title}</div>
+          <div class="queue-item-meta"><span>${item.tag}</span><span>約${Math.ceil(item.script.length/5)}秒</span></div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function playItem(idx){
+  if(idx<0||idx>=queue.length) return;
+  synth.cancel(); clearInterval(progInterval);
+  curIdx=idx;
+  const item=queue[idx];
+  document.getElementById('artTitle').textContent=item.title;
+  document.getElementById('artMeta').innerHTML=`<span class="tag">${item.tag}</span><span>${idx+1} / ${queue.length}</span>`;
+  buildWave(); renderQueue();
+  utt=new SpeechSynthesisUtterance(item.script);
+  utt.rate=speed; utt.lang='ja-JP'; utt.volume=volume;
+  const sel=document.getElementById('voiceSel');
+  if(sel.value){ const v=voices.find(v=>v.name===sel.value); if(v) utt.voice=v; }
+  estDur=Math.ceil(item.script.length/(5*speed)); elapsed=0;
+  updateProg(0,0,estDur);
+  utt.onstart=()=>{
+    isPlaying=true;
+    document.getElementById('ppBtn').textContent='⏸';
+    document.getElementById('liveLabel').textContent='ON AIR';
+    document.getElementById('liveDot').classList.add('live');
+    setWave(true); setStatus(`放送中: ${item.title}`);
+    startTime=Date.now(); clearInterval(progInterval);
+    progInterval=setInterval(()=>{ elapsed=(Date.now()-startTime)/1000; updateProg(Math.min(elapsed/estDur*100,100),elapsed,estDur); },200);
+  };
+  utt.onend=()=>{
+    clearInterval(progInterval); updateProg(100,estDur,estDur);
+    isPlaying=false; setWave(false);
+    document.getElementById('ppBtn').textContent='▶';
+    document.getElementById('liveLabel').textContent='READY';
+    document.getElementById('liveDot').classList.remove('live');
+    if(curIdx+1<queue.length) setTimeout(()=>playItem(curIdx+1),800);
+    else { setStatus('全ての番組を放送しました。'); document.getElementById('artTitle').textContent='放送終了'; }
+  };
+  utt.onerror=()=>{ clearInterval(progInterval); isPlaying=false; setWave(false); setStatus('音声再生エラー'); };
+  document.getElementById('prevBtn').disabled=idx===0;
+  document.getElementById('nextBtn').disabled=idx===queue.length-1;
+  synth.speak(utt);
+}
+
+function updateProg(pct,cur,tot){
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('curTime').textContent=fmt(cur||0);
+  document.getElementById('totTime').textContent=fmt(tot||0);
+}
+function fmt(s){ const m=Math.floor(s/60); return m+':'+String(Math.floor(s%60)).padStart(2,'0'); }
+
+function togglePlay(){
+  if(!queue.length) return;
+  if(isPlaying){ synth.pause(); isPlaying=false; clearInterval(progInterval); document.getElementById('ppBtn').textContent='▶'; setWave(false); document.getElementById('liveLabel').textContent='PAUSED'; }
+  else if(synth.paused){ synth.resume(); isPlaying=true; document.getElementById('ppBtn').textContent='⏸'; setWave(true); document.getElementById('liveLabel').textContent='ON AIR'; startTime=Date.now()-elapsed*1000; progInterval=setInterval(()=>{ elapsed=(Date.now()-startTime)/1000; updateProg(Math.min(elapsed/estDur*100,100),elapsed,estDur); },200); }
+  else playItem(Math.max(0,curIdx===-1?0:curIdx));
+}
+function playNext(){ if(curIdx<queue.length-1) playItem(curIdx+1); }
+function playPrev(){ if(curIdx>0) playItem(curIdx-1); }
+function cycleSpeed(){ const s=[0.75,1,1.25,1.5,1.75,2]; speed=s[(s.indexOf(speed)+1)%s.length]; document.getElementById('speedBtn').textContent=speed+'x'; if(utt) utt.rate=speed; }
+function setVol(v){ volume=parseFloat(v); if(utt) utt.volume=volume; }
+</script>
+</body>
+</html>
