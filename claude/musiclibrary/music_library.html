@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Favorite Songs</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f8f8f6;
+    --surface: #ffffff;
+    --border: #e4e4e0;
+    --text: #1a1a1a;
+    --muted: #888;
+    --subtle: #f2f2f0;
+    --accent: #1DB954;
+    --radius: 10px;
+  }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 40px 24px; }
+
+  h1 { font-size: 26px; font-weight: 700; margin-bottom: 4px; }
+  .subtitle { font-size: 14px; color: var(--muted); margin-bottom: 32px; }
+
+  /* Setup */
+  .setup {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 32px;
+  }
+  .setup h2 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .setup p { font-size: 13px; color: var(--muted); margin-bottom: 20px; line-height: 1.7; }
+  .setup a { color: var(--accent); }
+
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12px; font-weight: 500; margin-bottom: 6px; color: var(--muted); }
+  .field input, .field textarea {
+    width: 100%; padding: 10px 14px;
+    border: 1px solid var(--border); border-radius: 8px;
+    font-size: 13px; font-family: inherit; background: var(--bg);
+    color: var(--text); outline: none; transition: border .15s;
+  }
+  .field input:focus, .field textarea:focus { border-color: var(--accent); }
+  .field textarea { min-height: 160px; resize: vertical; font-family: monospace; line-height: 1.6; }
+
+  .row { display: flex; gap: 10px; }
+  .row input { flex: 1; }
+
+  button {
+    padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border);
+    font-size: 13px; font-weight: 500; font-family: inherit;
+    cursor: pointer; background: var(--surface); color: var(--text);
+    transition: all .15s;
+  }
+  button:hover { background: var(--subtle); }
+  button.primary {
+    background: var(--accent); color: white; border-color: var(--accent);
+  }
+  button.primary:hover { opacity: .88; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+
+  .progress-wrap { margin-top: 16px; display: none; }
+  .progress-bar { height: 4px; background: var(--subtle); border-radius: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); border-radius: 4px; width: 0%; transition: width .3s; }
+  .progress-label { font-size: 12px; color: var(--muted); margin-top: 8px; }
+  .error { font-size: 13px; color: #c0392b; margin-top: 10px; }
+
+  /* Library */
+  #library { display: none; }
+
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 28px; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; text-align: center; }
+  .stat-n { font-size: 28px; font-weight: 700; }
+  .stat-l { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  .toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pill {
+    font-size: 12px; padding: 6px 16px; border-radius: 20px;
+    border: 1px solid var(--border); background: var(--surface);
+    color: var(--muted); cursor: pointer; transition: all .15s;
+  }
+  .pill:hover { border-color: #bbb; color: var(--text); }
+  .pill.active { background: var(--text); color: var(--surface); border-color: var(--text); }
+
+  .section { margin-bottom: 36px; }
+  .section-head {
+    display: flex; align-items: baseline; gap: 10px;
+    padding-bottom: 10px; margin-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-head h3 { font-size: 18px; font-weight: 700; }
+  .section-head span { font-size: 13px; color: var(--muted); }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 20px; }
+
+  .card { cursor: default; }
+  .card:hover .thumb { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .thumb {
+    width: 100%; aspect-ratio: 1; border-radius: var(--radius);
+    overflow: hidden; background: var(--subtle);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 10px; transition: outline .15s;
+  }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .thumb .ph { font-size: 26px; font-weight: 700; color: var(--muted); }
+
+  .card-title { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; }
+  .card-artist { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 5px; }
+  .card-tag {
+    display: inline-block; font-size: 10px; padding: 2px 8px;
+    border-radius: 20px; background: var(--subtle);
+    color: var(--muted); border: 1px solid var(--border);
+  }
+
+  .back-btn { font-size: 13px; margin-bottom: 24px; }
+
+  @media (max-width: 500px) {
+    .grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 14px; }
+    .stats { grid-template-columns: repeat(3,1fr); gap: 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>My Favorite Songs</h1>
+  <p class="subtitle">Spotify APIでジャケ写とジャンルを自動取得</p>
+
+  <!-- Setup -->
+  <div class="setup" id="setupSection">
+    <h2>Spotify API 設定</h2>
+    <p>
+      <a href="https://developer.spotify.com/dashboard" target="_blank">developer.spotify.com/dashboard</a> でアプリを作成し、
+      Client ID と Client Secret を取得してください。<br>
+      Redirect URI は <code>http://localhost</code> で OK です。キーはこのページ外に送信されません。
+    </p>
+
+    <div class="field">
+      <label>Client ID</label>
+      <input type="text" id="clientId" placeholder="例: 1a2b3c4d5e6f7g8h9i0j..." />
+    </div>
+    <div class="field">
+      <label>Client Secret</label>
+      <div class="row">
+        <input type="password" id="clientSecret" placeholder="例: a1b2c3d4e5..." />
+        <button onclick="toggleSecret()">表示</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>曲リスト（1行に「曲名, アーティスト名」）</label>
+      <textarea id="songsInput">夜に駆ける, YOASOBI
+Pretender, Official髭男dism
+炎, LiSA
+新時代, Ado
+白日, King Gnu
+怪物, YOASOBI
+うっせぇわ, Ado
+Idol, YOASOBI
+ドライフラワー, 優里
+踊, Ado
+Bohemian Rhapsody, Queen
+Hotel California, Eagles
+Smells Like Teen Spirit, Nirvana
+Wonderwall, Oasis
+Mr. Brightside, The Killers
+Seven Nation Army, The White Stripes
+Yellow, Coldplay
+Do I Wanna Know, Arctic Monkeys
+Creep, Radiohead
+Back in Black, AC/DC
+HUMBLE., Kendrick Lamar
+God's Plan, Drake
+Lose Yourself, Eminem
+Sicko Mode, Travis Scott
+Alright, Kendrick Lamar
+The Box, Roddy Ricch
+Savage, Megan Thee Stallion
+Levels, Avicii
+One More Time, Daft Punk
+Titanium, David Guetta
+Clarity, Zedd
+Wake Me Up, Avicii
+Animals, Martin Garrix
+Strobe, deadmau5
+Around the World, Daft Punk</textarea>
+    </div>
+
+    <div style="text-align:right">
+      <button class="primary" id="fetchBtn" onclick="startFetch()">ジャケ写・ジャンルを取得する</button>
+    </div>
+
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-label" id="progressLabel"></div>
+    </div>
+    <div class="error" id="errorMsg"></div>
+  </div>
+
+  <!-- Library -->
+  <div id="library">
+    <button class="back-btn" onclick="backToSetup()">← 設定に戻る</button>
+    <div class="stats">
+      <div class="stat"><div class="stat-n" id="statSongs">0</div><div class="stat-l">曲</div></div>
+      <div class="stat"><div class="stat-n" id="statArtists">0</div><div class="stat-l">アーティスト</div></div>
+      <div class="stat"><div class="stat-n" id="statGenres">0</div><div class="stat-l">ジャンル</div></div>
+    </div>
+    <div class="toolbar">
+      <div class="filters" id="filterPills"></div>
+    </div>
+    <div id="sections"></div>
+  </div>
+</div>
+
+<script>
+let token = null;
+let allSongs = [];
+let currentFilter = 'all';
+
+function toggleSecret() {
+  const el = document.getElementById('clientSecret');
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
+
+function backToSetup() {
+  document.getElementById('library').style.display = 'none';
+  document.getElementById('setupSection').style.display = 'block';
+}
+
+async function getToken(id, secret) {
+  const res = await fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `grant_type=client_credentials&client_id=${encodeURIComponent(id)}&client_secret=${encodeURIComponent(secret)}`
+  });
+  if (!res.ok) throw new Error('認証失敗。Client ID・Client Secretを確認してください。');
+  return (await res.json()).access_token;
+}
+
+async function searchTrack(title, artist) {
+  const q = encodeURIComponent(`track:${title} artist:${artist}`);
+  const res = await fetch(`https://api.spotify.com/v1/search?q=${q}&type=track&limit=1`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const d = await res.json();
+  const t = d.tracks?.items?.[0];
+  if (!t) return null;
+  return {
+    title: t.name,
+    artist: t.artists.map(a => a.name).join(', '),
+    artwork: t.album.images?.[1]?.url || t.album.images?.[0]?.url || null,
+    artistId: t.artists[0]?.id || null,
+  };
+}
+
+async function getArtistGenres(artistId) {
+  if (!artistId) return [];
+  const res = await fetch(`https://api.spotify.com/v1/artists/${artistId}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const d = await res.json();
+  return d.genres || [];
+}
+
+function normalizeGenre(genres) {
+  if (!genres.length) return 'その他';
+  const g = genres.join(' ').toLowerCase();
+  if (g.match(/j-?pop|japanese pop|city pop|shibuya/)) return 'J-Pop';
+  if (g.match(/j-?rock|visual kei/)) return 'J-Rock';
+  if (g.match(/hip.?hop|rap|trap|drill|grime/)) return 'Hip-Hop';
+  if (g.match(/metal|hard rock|punk|grunge|alternative rock|indie rock|classic rock|rock/)) return 'Rock';
+  if (g.match(/edm|electronic|house|techno|trance|dubstep|drum and bass|electro/)) return 'Electronic';
+  if (g.match(/r&b|soul|funk|neo soul/)) return 'R&B / Soul';
+  if (g.match(/jazz/)) return 'Jazz';
+  if (g.match(/classical|orchestra/)) return 'Classical';
+  if (g.match(/pop/)) return 'Pop';
+  return genres[0].replace(/\b\w/g, c => c.toUpperCase());
+}
+
+async function startFetch() {
+  const clientId = document.getElementById('clientId').value.trim();
+  const clientSecret = document.getElementById('clientSecret').value.trim();
+  const raw = document.getElementById('songsInput').value.trim();
+  const errEl = document.getElementById('errorMsg');
+  errEl.textContent = '';
+
+  if (!clientId || !clientSecret) { errEl.textContent = 'Client IDとClient Secretを入力してください。'; return; }
+
+  const lines = raw.split('\n').map(l => l.trim()).filter(l => l.includes(','));
+  if (!lines.length) { errEl.textContent = '曲リストを「曲名, アーティスト名」形式で入力してください。'; return; }
+
+  const btn = document.getElementById('fetchBtn');
+  btn.disabled = true;
+  document.getElementById('progressWrap').style.display = 'block';
+
+  try {
+    setProgress(0, 'Spotifyに接続中...');
+    token = await getToken(clientId, clientSecret);
+  } catch (e) {
+    errEl.textContent = e.message;
+    btn.disabled = false;
+    return;
+  }
+
+  allSongs = [];
+  for (let i = 0; i < lines.length; i++) {
+    const [rawTitle, ...rest] = lines[i].split(',');
+    const title = rawTitle.trim();
+    const artist = rest.join(',').trim();
+    const pct = Math.round((i + 1) / lines.length * 100);
+    setProgress(pct, `取得中 ${i + 1} / ${lines.length}：${title}`);
+
+    try {
+      const track = await searchTrack(title, artist);
+      if (track) {
+        const rawGenres = await getArtistGenres(track.artistId);
+        const genre = normalizeGenre(rawGenres);
+        allSongs.push({ ...track, genre, rawGenre: rawGenres[0] || '' });
+      } else {
+        allSongs.push({ title, artist, artwork: null, genre: 'その他', rawGenre: '' });
+      }
+    } catch {
+      allSongs.push({ title, artist, artwork: null, genre: 'その他', rawGenre: '' });
+    }
+    await sleep(150);
+  }
+
+  setProgress(100, '完了！');
+  btn.disabled = false;
+  document.getElementById('setupSection').style.display = 'none';
+  document.getElementById('library').style.display = 'block';
+  renderLibrary('all');
+}
+
+function setProgress(pct, label) {
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = label;
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function renderLibrary(filter) {
+  currentFilter = filter;
+  const genres = [...new Set(allSongs.map(s => s.genre))].sort();
+  const artists = [...new Set(allSongs.map(s => s.artist))];
+
+  document.getElementById('statSongs').textContent = allSongs.length;
+  document.getElementById('statArtists').textContent = artists.length;
+  document.getElementById('statGenres').textContent = genres.length;
+
+  // Pills
+  const pills = document.getElementById('filterPills');
+  pills.innerHTML = '';
+  [['all', 'すべて'], ...genres.map(g => [g, g])].forEach(([val, label]) => {
+    const p = document.createElement('button');
+    p.className = 'pill' + (filter === val ? ' active' : '');
+    p.textContent = label;
+    p.onclick = () => renderLibrary(val);
+    pills.appendChild(p);
+  });
+
+  // Sections
+  const filtered = filter === 'all' ? allSongs : allSongs.filter(s => s.genre === filter);
+  const grouped = {};
+  filtered.forEach(s => {
+    if (!grouped[s.genre]) grouped[s.genre] = [];
+    grouped[s.genre].push(s);
+  });
+
+  const container = document.getElementById('sections');
+  container.innerHTML = '';
+  Object.entries(grouped).sort(([a],[b]) => a.localeCompare(b, 'ja')).forEach(([genre, list]) => {
+    const sec = document.createElement('div');
+    sec.className = 'section';
+    sec.innerHTML = `<div class="section-head"><h3>${genre}</h3><span>${list.length}曲</span></div>`;
+    const grid = document.createElement('div');
+    grid.className = 'grid';
+    list.forEach(song => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      const artHtml = song.artwork
+        ? `<img src="${song.artwork}" loading="lazy" alt="${song.title}">`
+        : `<div class="ph">${(song.title||'?').slice(0,2).toUpperCase()}</div>`;
+      card.innerHTML = `
+        <div class="thumb">${artHtml}</div>
+        <div class="card-title" title="${song.title}">${song.title}</div>
+        <div class="card-artist" title="${song.artist}">${song.artist}</div>
+        ${song.rawGenre ? `<span class="card-tag">${song.rawGenre}</span>` : ''}
+      `;
+      grid.appendChild(card);
+    });
+    sec.appendChild(grid);
+    container.appendChild(sec);
+  });
+}
+</script>
+</body>
+</html>

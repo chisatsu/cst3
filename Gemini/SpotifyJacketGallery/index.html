@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Jacket Search</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Spotify Jacket Gallery</h1>
+        
+        <div class="auth-section">
+            <input type="password" id="clientId" placeholder="Client ID">
+            <input type="password" id="clientSecret" placeholder="Client Secret">
+            <p class="hint">※IDとSecretは自分のダッシュボードから取得してください</p>
+        </div>
+
+        <div class="search-section">
+            <input type="text" id="artistName" placeholder="歌手名を入力（例：Official髭男dism）">
+            <button onclick="searchArtist()">検索</button>
+        </div>
+
+        <div id="gallery" class="gallery"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
