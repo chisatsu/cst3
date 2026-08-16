@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>八百万円環ツリー - 聖地巡礼曼荼羅</title>
+    <style>
+        :root {
+            --bg-color: #030305;
+            --line-color: #1a1a2e;
+            --shrine-glow: #ff4500;
+            --temple-glow: #4169e1;
+            --unlocked: #ffd700;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: #eee;
+            font-family: "Hiragino Mincho ProN", serif;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        /* ズーム・パン操作用のコンテナ */
+        #viewport {
+            width: 100%;
+            height: 100%;
+            cursor: move;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #tree-container {
+            position: relative;
+            transform-origin: center center;
+            width: 4000px;
+            height: 4000px;
+        }
+
+        svg {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 1;
+        }
+
+        .node {
+            position: absolute;
+            width: 100px;
+            padding: 6px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #333;
+            border-radius: 50%; /* 丸型にしてRPG感を出す */
+            aspect-ratio: 1 / 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 10px;
+            z-index: 2;
+            transition: all 0.3s ease;
+            transform: translate(-50%, -50%); /* 中心合わせ */
+            cursor: pointer;
+        }
+
+        .node.visited {
+            border: 2px solid var(--unlocked);
+            box-shadow: 0 0 15px var(--unlocked);
+            color: var(--unlocked);
+        }
+
+        .node.shrine:not(.visited) { border-color: var(--shrine-glow); }
+        .node.temple:not(.visited) { border-color: var(--temple-glow); }
+
+        .node:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+            z-index: 10;
+        }
+
+        line {
+            stroke: var(--line-color);
+            stroke-width: 1;
+        }
+
+        line.active {
+            stroke: var(--unlocked);
+            stroke-width: 2;
+            filter: drop-shadow(0 0 5px var(--unlocked));
+            stroke-dasharray: 5;
+            animation: flow 10s linear infinite;
+        }
+
+        @keyframes flow {
+            from { stroke-dashoffset: 100; }
+            to { stroke-dashoffset: 0; }
+        }
+
+        #ui {
+            position: fixed;
+            top: 20px; left: 20px;
+            z-index: 100;
+            background: rgba(0,0,0,0.6);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #444;
+        }
+    </style>
+</head>
+<body>
+
+<div id="ui">
+    <h3 style="margin:0 0 10px 0;">聖地巡礼曼荼羅</h3>
+    <small>中心：伊勢神宮</small><br>
+    <button onclick="changeZoom(1.2)">拡大</button>
+    <button onclick="changeZoom(0.8)">縮小</button>
+    <p style="font-size: 11px;">※ドラッグで自由に移動できます</p>
+</div>
+
+<div id="viewport">
+    <div id="tree-container">
+        <svg id="svg-layer"></svg>
+    </div>
+</div>
+
+<script>
+// データ構造（親IDを指定することで自動配置）
+const data = [
+    { id: 'ise', name: '伊勢神宮', type: 'shrine', parent: null, visited: true },
+    
+    // LEVEL 1: 二十二社・総本山（中心から距離500）
+    { id: 'kamo', name: '賀茂神社', type: 'shrine', parent: 'ise' },
+    { id: 'iwashimizu', name: '石清水八幡宮', type: 'shrine', parent: 'ise' },
+    { id: 'kasuga', name: '春日大社', type: 'shrine', parent: 'ise' },
+    { id: 'fushimi', name: '伏見稲荷', type: 'shrine', parent: 'ise' },
+    { id: 'hieizan', name: '延暦寺', type: 'temple', parent: 'ise' },
+    { id: 'koyasan', name: '金剛峯寺', type: 'temple', parent: 'ise' },
+    { id: 'izumo', name: '出雲大社', type: 'shrine', parent: 'ise' },
+    { id: 'atsuta', name: '熱田神宮', type: 'shrine', parent: 'ise' }
+];
+
+// 200件のデータを追加（シミュレーション用：各親に約20個ずつ子がぶら下がる）
+const parents = ['kamo', 'iwashimizu', 'kasuga', 'fushimi', 'hieizan', 'koyasan', 'izumo', 'atsuta'];
+for(let i=0; i<192; i++) {
+    data.push({
+        id: `node_${i}`,
+        name: `${i % 2 === 0 ? '一宮' : '本山'} No.${i}`,
+        type: i % 2 === 0 ? 'shrine' : 'temple',
+        parent: parents[i % parents.length],
+        visited: false
+    });
+}
+
+const container = document.getElementById('tree-container');
+const svg = document.getElementById('svg-layer');
+const centerX = 2000;
+const centerY = 2000;
+let scale = 0.5;
+
+function buildTree() {
+    // 階層ごとにグループ化
+    const tree = {};
+    data.forEach(d => {
+        d.children = data.filter(c => c.parent === d.id);
+        if (!d.parent) d.depth = 0;
+    });
+
+    // 深さを計算
+    const setDepth = (node, d) => {
+        node.depth = d;
+        node.children.forEach(c => setDepth(c, d + 1));
+    };
+    setDepth(data[0], 0);
+
+    // 座標計算（ラジアルレイアウト）
+    const renderNode = (node, startAngle, endAngle) => {
+        const radius = node.depth * 450; // 階層ごとの半径
+        const angle = (startAngle + endAngle) / 2;
+        
+        node.x = centerX + radius * Math.cos(angle);
+        node.y = centerY + radius * Math.sin(angle);
+
+        // 要素作成
+        const div = document.createElement('div');
+        div.className = `node ${node.type} ${node.visited ? 'visited' : ''}`;
+        div.style.left = `${node.x}px`;
+        div.style.top = `${node.y}px`;
+        div.innerHTML = node.name;
+        div.onclick = () => {
+            node.visited = !node.visited;
+            updateDisplay();
+        };
+        container.appendChild(div);
+        node.el = div;
+
+        // 子ノードに角度を分割して割り振る
+        if (node.children.length > 0) {
+            const step = (endAngle - startAngle) / node.children.length;
+            node.children.forEach((child, i) => {
+                renderNode(child, startAngle + i * step, startAngle + (i + 1) * step);
+            });
+        }
+    };
+
+    renderNode(data[0], 0, Math.PI * 2);
+    updateDisplay();
+}
+
+function updateDisplay() {
+    svg.innerHTML = '';
+    data.forEach(node => {
+        node.el.className = `node ${node.type} ${node.visited ? 'visited' : ''}`;
+        if (node.parent) {
+            const parent = data.find(p => p.id === node.parent);
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', parent.x);
+            line.setAttribute('y1', parent.y);
+            line.setAttribute('x2', node.x);
+            line.setAttribute('y2', node.y);
+            if (parent.visited && node.visited) line.classList.add('active');
+            svg.appendChild(line);
+        }
+    });
+}
+
+// ズーム機能
+function changeZoom(v) {
+    scale *= v;
+    document.getElementById('tree-container').style.transform = `scale(${scale})`;
+}
+
+// 初期化（少し縮小して全体を見せる）
+document.getElementById('tree-container').style.transform = `scale(${scale})`;
+buildTree();
+
+// ドラッグ移動の実装
+let isDragging = false;
+let startX, startY, scrollLeft, scrollTop;
+const v = document.getElementById('viewport');
+
+v.onmousedown = (e) => {
+    isDragging = true;
+    startX = e.pageX - v.offsetLeft;
+    startY = e.pageY - v.offsetTop;
+    scrollLeft = v.scrollLeft;
+    scrollTop = v.scrollTop;
+};
+v.onmouseleave = () => isDragging = false;
+v.onmouseup = () => isDragging = false;
+v.onmousemove = (e) => {
+    if (!isDragging) return;
+    const x = e.pageX - v.offsetLeft;
+    const y = e.pageY - v.offsetTop;
+    v.scrollLeft = scrollLeft - (x - startX);
+    v.scrollTop = scrollTop - (y - startY);
+};
+
+</script>
+</body>
+</html>

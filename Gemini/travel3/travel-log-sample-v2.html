@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>旅の記録 — Travel Log Sample v2</title>
+<style>
+  @font-face{
+    font-family:'system-serif';
+    src: local('Hiragino Mincho ProN'), local('Yu Mincho'), local('YuMincho');
+  }
+  :root{
+    --paper: #f3ede0;
+    --card: #fffdf8;
+    --ink: #2a2823;
+    --ink-soft: #7a7364;
+    --teal: #2c5f5a;
+    --teal-deep: #1c4441;
+    --line: #ddd3bd;
+    --accent: #b0523f;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ height:auto; }
+  body{
+    margin:0;
+    background:var(--paper);
+    background-image:
+      radial-gradient(circle at 20% 0%, rgba(44,95,90,0.06), transparent 45%),
+      radial-gradient(circle at 90% 30%, rgba(176,82,63,0.05), transparent 40%);
+    color:var(--ink);
+    font-family: -apple-system, "Hiragino Sans", "Noto Sans JP", "Yu Gothic", sans-serif;
+    padding:48px 18px 90px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{ max-width:660px; margin:0 auto; }
+
+  header{ margin-bottom:40px; }
+  .eyebrow{
+    font-family:"Courier New", monospace;
+    font-size:11px;
+    letter-spacing:0.22em;
+    color:var(--teal);
+    text-transform:uppercase;
+    margin-bottom:12px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .eyebrow::before{
+    content:""; display:inline-block;
+    width:20px; height:1px; background:var(--teal);
+  }
+  h1{
+    font-family: "Hiragino Mincho ProN","Yu Mincho","system-serif", serif;
+    font-weight:700;
+    font-size:clamp(26px, 5vw, 36px);
+    margin:0 0 10px;
+    letter-spacing:0.02em;
+  }
+  .sub{
+    color:var(--ink-soft);
+    font-size:13.5px;
+    line-height:1.8;
+  }
+
+  .route{ position:relative; padding-left:28px; }
+  .route::before{
+    content:"";
+    position:absolute;
+    left:8px; top:10px; bottom:10px;
+    width:1px;
+    background-image:linear-gradient(var(--line) 55%, transparent 0%);
+    background-size:1px 7px;
+    background-repeat:repeat-y;
+  }
+
+  .stop{ position:relative; margin-bottom:22px; }
+  .stop::before{
+    content:"";
+    position:absolute;
+    left:-28px; top:22px;
+    width:10px; height:10px;
+    border-radius:50%;
+    background:var(--paper);
+    border:2px solid var(--teal);
+    z-index:2;
+  }
+  .stop:first-child::before{ background:var(--teal); }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:3px;
+    display:grid;
+    grid-template-columns:96px 1fr;
+    box-shadow:0 1px 2px rgba(42,40,35,0.04);
+  }
+  .thumb{
+    width:96px; height:96px;
+    display:block;
+    border-right:1px solid var(--line);
+  }
+  .thumb svg{ display:block; width:100%; height:100%; }
+
+  .card-body{
+    padding:12px 16px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    gap:5px;
+    min-width:0;
+  }
+  .time-row{
+    display:flex; align-items:baseline; gap:8px;
+  }
+  .time{
+    font-family:"Courier New", monospace;
+    font-size:12px;
+    font-weight:700;
+    color:var(--teal-deep);
+    letter-spacing:0.03em;
+  }
+  .place{
+    font-family: "Hiragino Mincho ProN","Yu Mincho","system-serif", serif;
+    font-weight:700;
+    font-size:18px;
+    line-height:1.3;
+    margin:0;
+  }
+  .memo{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    line-height:1.6;
+  }
+  .maps-link{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    margin-top:3px;
+    font-family:"Courier New", monospace;
+    font-size:11px;
+    color:var(--teal);
+    text-decoration:none;
+    border-bottom:1px solid var(--line);
+    width:fit-content;
+    padding-bottom:1px;
+    transition:border-color .15s ease, color .15s ease;
+  }
+  .maps-link:hover{ border-color:var(--teal); color:var(--teal-deep); }
+  .maps-link svg{ width:11px; height:11px; flex-shrink:0; }
+
+  footer{
+    margin-top:44px;
+    padding-top:18px;
+    border-top:1px dashed var(--line);
+    font-size:11.5px;
+    color:var(--ink-soft);
+    line-height:1.9;
+    font-family:"Courier New", monospace;
+  }
+  footer b{ color:var(--ink); font-family:inherit; }
+
+  @media (max-width:420px){
+    .card{ grid-template-columns:76px 1fr; }
+    .thumb{ width:76px; height:76px; }
+    .place{ font-size:16px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Travel Log · Sample v2</div>
+    <h1>京都 半日さんぽ</h1>
+    <div class="sub">外部の画像・フォントに一切依存しない構成に変更しました。サムネイルはその場でSVG生成しています。</div>
+  </header>
+
+  <div class="route" id="route"></div>
+
+  <footer>
+    <b>実装メモ</b><br>
+    ・地図リンクは <code>https://www.google.com/maps/place/?q=place_id:XXXX</code> 形式（APIキー不要）<br>
+    ・サムネイルは実運用では Place Photos API の画像に差し替え可能。取得できない場合のフォールバックとしてもこのSVG生成方式は有用<br>
+    ・フォントも外部CDNを使わずOS標準の明朝/ゴシックのみで構成 → どの環境でも確実に表示されます
+  </footer>
+
+</div>
+
+<script>
+const stops = [
+  { time:"09:15", place:"伏見稲荷大社", memo:"千本鳥居、朝一で人が少なくて良かった", placeId:"ChIJARBWo-r9AWARAtOtHTHNAAo" },
+  { time:"11:40", place:"喫茶 六花",     memo:"抹茶パフェが名物。行列は30分ほど",       placeId:"ChIJ_example_kissa_rokka" },
+  { time:"13:50", place:"清水寺",       memo:"舞台からの眺めが最高。紅葉にはまだ早い", placeId:"ChIJ8SzX0MoIAWAR3TNhI7lE0jI" },
+  { time:"16:20", place:"二寧坂・産寧坂", memo:"石畳の坂道、お土産屋を覗きながらのんびり下る", placeId:"ChIJ_example_ninenzaka" }
+];
+
+// 場所名から安定した色を作る（外部画像なしのプレースホルダー用）
+function hashColor(str){
+  let hash = 0;
+  for (let i=0; i<str.length; i++){
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const palette = [
+    ["#2c5f5a","#1c4441"],
+    ["#b0523f","#7c3a2c"],
+    ["#a68a4c","#6f5a2c"],
+    ["#4a6b8a","#2f4560"],
+    ["#7a5c7e","#4f3a52"]
+  ];
+  return palette[Math.abs(hash) % palette.length];
+}
+
+function thumbSvg(place){
+  const [c1, c2] = hashColor(place);
+  const initial = place.charAt(0);
+  const uid = 'g' + Math.abs(place.split('').reduce((a,c)=>a+c.charCodeAt(0),0));
+  return `
+    <svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="${uid}" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="${c1}"/>
+          <stop offset="100%" stop-color="${c2}"/>
+        </linearGradient>
+      </defs>
+      <rect width="96" height="96" fill="url(#${uid})"/>
+      <circle cx="48" cy="40" r="16" fill="rgba(255,255,255,0.14)"/>
+      <path d="M18 78 C 30 58, 40 58, 48 68 C 56 58, 66 56, 80 78 Z" fill="rgba(255,255,255,0.10)"/>
+      <text x="48" y="52" font-family="Georgia, serif" font-size="26" fill="rgba(255,255,255,0.9)"
+        text-anchor="middle" dominant-baseline="middle">${initial}</text>
+    </svg>
+  `;
+}
+
+function mapsUrl(placeId){
+  return `https://www.google.com/maps/place/?q=place_id:${placeId}`;
+}
+
+const route = document.getElementById('route');
+stops.forEach(stop => {
+  const el = document.createElement('div');
+  el.className = 'stop';
+  el.innerHTML = `
+    <div class="card">
+      <div class="thumb">${thumbSvg(stop.place)}</div>
+      <div class="card-body">
+        <div class="time-row"><span class="time">${stop.time}</span></div>
+        <p class="place">${stop.place}</p>
+        <div class="memo">${stop.memo}</div>
+        <a class="maps-link" href="${mapsUrl(stop.placeId)}" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/>
+            <circle cx="12" cy="10" r="2.5"/>
+          </svg>
+          Googleマップで見る
+        </a>
+      </div>
+    </div>
+  `;
+  route.appendChild(el);
+});
+</script>
+</body>
+</html>

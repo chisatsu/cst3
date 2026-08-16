@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>参拝記録スキルツリー</title>
+    <style>
+        :root {
+            --shrine-red: #d3381c; /* 朱色 */
+            --ink-black: #2b2b2b;  /* 墨色 */
+            --paper-white: #f9f7f2; /* 和紙色 */
+        }
+
+        body {
+            background-color: var(--paper-white);
+            font-family: "Hiragino Mincho ProN", "MS Mincho", serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: var(--ink-black);
+            border-bottom: 2px solid var(--shrine-red);
+            padding-bottom: 10px;
+        }
+
+        #tree-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 600px;
+            border: 1px solid #ccc;
+            background: white;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .node {
+            position: absolute;
+            padding: 10px 15px;
+            background: white;
+            border: 2px solid var(--ink-black);
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 2;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .node.visited {
+            border-color: var(--shrine-red);
+            color: var(--shrine-red);
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(211, 56, 28, 0.3);
+        }
+
+        .node:hover {
+            transform: scale(1.1);
+            background: var(--shrine-red);
+            color: white;
+            border-color: var(--shrine-red);
+        }
+
+        svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        line {
+            stroke: #ccc;
+            stroke-width: 2;
+            transition: stroke 0.5s;
+        }
+
+        line.unlocked {
+            stroke: var(--shrine-red);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>御朱印巡り：習得地図</h1>
+
+    <div id="tree-container">
+        <svg id="lines"></svg>
+    </div>
+
+    <script>
+        // データの定義（ここを編集して増やせます）
+        const treeData = {
+            nodes: [
+                { id: 'root', name: '始まりの地', x: 400, y: 50, visited: true },
+                { id: 'shrine1', name: '伊勢神宮', x: 250, y: 200, visited: true, parent: 'root' },
+                { id: 'shrine2', name: '熱田神宮', x: 550, y: 200, visited: false, parent: 'root' },
+                { id: 'shrine3', name: '金閣寺', x: 150, y: 350, visited: false, parent: 'shrine1' },
+                { id: 'shrine4', name: '清水寺', x: 350, y: 350, visited: true, parent: 'shrine1' },
+                { id: 'shrine5', name: '明治神宮', x: 550, y: 350, visited: false, parent: 'shrine2' }
+            ]
+        };
+
+        const container = document.getElementById('tree-container');
+        const svg = document.getElementById('lines');
+
+        function renderTree() {
+            // ノードの描画
+            treeData.nodes.forEach(node => {
+                const div = document.createElement('div');
+                div.className = `node ${node.visited ? 'visited' : ''}`;
+                div.style.left = `${node.x}px`;
+                div.style.top = `${node.y}px`;
+                div.innerText = node.name;
+                
+                // クリックで訪問済みを切り替え（簡易機能）
+                div.onclick = () => {
+                    node.visited = !node.visited;
+                    updateLayout();
+                };
+
+                container.appendChild(div);
+                node.element = div; // 位置計算用に保持
+            });
+
+            updateLayout();
+        }
+
+        function updateLayout() {
+            // 線の描画
+            svg.innerHTML = '';
+            treeData.nodes.forEach(node => {
+                node.element.className = `node ${node.visited ? 'visited' : ''}`;
+                
+                if (node.parent) {
+                    const parent = treeData.nodes.find(n => n.id === node.parent);
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    
+                    // 中点計算（要素の中央から線を引く）
+                    line.setAttribute('x1', parent.x + 50);
+                    line.setAttribute('y1', parent.y + 20);
+                    line.setAttribute('x2', node.x + 50);
+                    line.setAttribute('y2', node.y + 20);
+                    
+                    if (parent.visited && node.visited) {
+                        line.classList.add('unlocked');
+                    }
+                    
+                    svg.appendChild(line);
+                }
+            });
+        }
+
+        renderTree();
+    </script>
+</body>
+</html>

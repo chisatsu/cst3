@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>SHRINE SKILL TREE - 参拝伝承</title>
+    <style>
+        :root {
+            --bg-dark: #0a0a12;
+            --node-unlocked: #ffcc00; /* 習得済み：ゴールド */
+            --node-locked: #444455;   /* 未習得：グレー */
+            --line-glow: rgba(255, 204, 0, 0.6);
+            --font-rpg: 'Hiragino Mincho ProN', serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #fff;
+            font-family: var(--font-rpg);
+            margin: 0;
+            overflow: hidden; /* スクロールはコンテナで制御 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            text-shadow: 0 0 10px var(--node-unlocked);
+            letter-spacing: 0.2em;
+            margin-top: 20px;
+        }
+
+        #tree-viewport {
+            width: 100vw;
+            height: 90vh;
+            overflow: auto;
+            cursor: grab;
+            position: relative;
+            background: radial-gradient(circle at center, #1a1a2e 0%, #0a0a12 100%);
+        }
+
+        #tree-container {
+            width: 1200px;
+            height: 1000px;
+            position: relative;
+        }
+
+        /* RPG風ノード */
+        .node {
+            position: absolute;
+            width: 120px;
+            padding: 10px;
+            background: rgba(20, 20, 30, 0.9);
+            border: 2px solid var(--node-locked);
+            border-radius: 5px;
+            text-align: center;
+            font-size: 14px;
+            z-index: 2;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+
+        .node.visited {
+            border-color: var(--node-unlocked);
+            box-shadow: 0 0 15px var(--node-unlocked);
+            color: var(--node-unlocked);
+        }
+
+        .node .rank {
+            font-size: 10px;
+            display: block;
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+
+        .node:hover {
+            transform: scale(1.1) translateY(-5px);
+            z-index: 10;
+        }
+
+        /* 接続線 */
+        svg {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 1;
+        }
+
+        line {
+            stroke: #333;
+            stroke-width: 3;
+        }
+
+        line.path-active {
+            stroke: var(--node-unlocked);
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: dash 1.5s ease-out forwards;
+            filter: drop-shadow(0 0 5px var(--node-unlocked));
+        }
+
+        @keyframes dash {
+            to { stroke-dashoffset: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>参拝伝承：SKILL TREE</h1>
+
+    <div id="tree-viewport">
+        <div id="tree-container">
+            <svg id="svg-layer"></svg>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * 神社仏閣の格式（ランク）に基づいたツリー構造
+         * 1. 殿堂入り: 伊勢神宮
+         * 2. 特級: 二十二社 / 総本山
+         * 3. 上級: 一宮 / 大本山
+         */
+/*
+        const treeData = [
+            // LEVEL 0: 最上位
+            { id: 'ise', name: '伊勢神宮', rank: '神宮', x: 550, y: 50, visited: true, parent: null },
+
+            // LEVEL 1: 二十二社 / 総本山クラス
+            { id: 'kamo', name: '賀茂神社', rank: '二十二社', x: 300, y: 250, visited: true, parent: 'ise' },
+            { id: 'iwashimizu', name: '石清水八幡宮', rank: '二十二社', x: 550, y: 250, visited: false, parent: 'ise' },
+            { id: 'toushougu', name: '日光東照宮', rank: '別格', x: 800, y: 250, visited: false, parent: 'ise' },
+
+            // LEVEL 2: 一宮 / 本山クラス
+            { id: 'atsuta', name: '熱田神宮', rank: '一宮', x: 200, y: 450, visited: true, parent: 'kamo' },
+            { id: 'izumo', name: '出雲大社', rank: '一宮', x: 400, y: 450, visited: false, parent: 'kamo' },
+            { id: 'kiyomizu', name: '清水寺', rank: '北法相宗本山', x: 700, y: 450, visited: true, parent: 'iwashimizu' },
+            { id: 'todaiji', name: '東大寺', rank: '華厳宗大本山', x: 900, y: 450, visited: false, parent: 'iwashimizu' }
+        ];
+*/
+const treeData = [
+    // --- LEVEL 0: LEGEND (殿堂入り) ---
+    { id: 'ise', name: '伊勢神宮', rank: '神宮・総本主', x: 550, y: 30, visited: true, parent: null },
+
+    // --- LEVEL 1: HIGH CLASS (二十二社・総本山) ---
+    // 神道ルート
+    { id: 'kamo', name: '下鴨・上賀茂神社', rank: '二十二社・山城国一宮', x: 250, y: 150, visited: false, parent: 'ise' },
+    { id: 'iwashimizu', name: '石清水八幡宮', rank: '二十二社・三大八幡', x: 450, y: 150, visited: false, parent: 'ise' },
+    { id: 'kasuga', name: '春日大社', rank: '二十二社・藤原氏氏神', x: 650, y: 150, visited: false, parent: 'ise' },
+    // 仏教ルート（便宜上、伊勢から分岐）
+    { id: 'hieizan', name: '比叡山 延暦寺', rank: '天台宗総本山', x: 850, y: 150, visited: false, parent: 'ise' },
+
+    // --- LEVEL 2: REGIONAL MASTERS (一宮・大本山) ---
+    // 東国エリア
+    { id: 'kashima', name: '鹿島神宮', rank: '常陸国一宮・勅祭社', x: 100, y: 300, visited: false, parent: 'kamo' },
+    { id: 'nikko', name: '日光東照宮', rank: '別格官幣社', x: 250, y: 300, visited: false, parent: 'kamo' },
+    // 近畿エリア
+    { id: 'fushimi', name: '伏見稲荷大社', rank: '二十二社・全国稲荷総本宮', x: 400, y: 300, visited: false, parent: 'iwashimizu' },
+    { id: 'sumiyoshi', name: '住吉大社', rank: '二十二社・摂津国一宮', x: 550, y: 300, visited: false, parent: 'iwashimizu' },
+    // 西国エリア
+    { id: 'izumo', name: '出雲大社', rank: '名神大社', x: 700, y: 300, visited: false, parent: 'kasuga' },
+    { id: 'itsukushima', name: '厳島神社', rank: '安芸国一宮・世界遺産', x: 850, y: 300, visited: false, parent: 'kasuga' },
+    // 仏教・古都エリア
+    { id: 'todaiji', name: '東大寺', rank: '華厳宗大本山', x: 1000, y: 300, visited: false, parent: 'hieizan' },
+
+    // --- LEVEL 3: SPECIAL SKILLS (特定の信仰・聖地) ---
+    { id: 'meiji', name: '明治神宮', rank: '官幣大社', x: 100, y: 450, visited: false, parent: 'kashima' },
+    { id: 'tsurugaoka', name: '鶴岡八幡宮', rank: '相模国一宮', x: 250, y: 450, visited: false, parent: 'nikko' },
+    { id: 'kifune', name: '貴船神社', rank: '二十二社・水の神', x: 350, y: 450, visited: false, parent: 'fushimi' },
+    { id: 'yasaka', name: '八坂神社', rank: '二十二社・祇園信仰総本社', x: 450, y: 450, visited: false, parent: 'fushimi' },
+    { id: 'koyasan', name: '高野山 金剛峯寺', rank: '真言宗総本山', x: 1050, y: 450, visited: false, parent: 'todaiji' },
+    
+    // --- LEVEL 4: ADVENTURER (巡礼・難所) ---
+    { id: 'kumano', name: '熊野三山', rank: '世界遺産・熊野信仰', x: 550, y: 600, visited: false, parent: 'sumiyoshi' },
+    { id: 'kotohira', name: '金刀比羅宮', rank: '別表神社', x: 750, y: 600, visited: false, parent: 'itsukushima' },
+    { id: 'dazaifu', name: '太宰府天満宮', rank: '天神信仰総本宮', x: 900, y: 600, visited: false, parent: 'itsukushima' }
+];
+
+
+        const container = document.getElementById('tree-container');
+        const svg = document.getElementById('svg-layer');
+
+        function init() {
+            // ノードの生成
+            treeData.forEach(item => {
+                const node = document.createElement('div');
+                node.className = `node ${item.visited ? 'visited' : ''}`;
+                node.style.left = `${item.x}px`;
+                node.style.top = `${item.y}px`;
+                node.innerHTML = `<span class="rank">${item.rank}</span>${item.name}`;
+                
+                node.onclick = () => {
+                    item.visited = !item.visited;
+                    draw();
+                };
+
+                container.appendChild(node);
+                item.el = node;
+            });
+
+            draw();
+        }
+
+        function draw() {
+            svg.innerHTML = '';
+            treeData.forEach(item => {
+                // クラス更新
+                item.el.className = `node ${item.visited ? 'visited' : ''}`;
+
+                if (item.parent) {
+                    const parent = treeData.find(d => d.id === item.parent);
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    
+                    // ノードの中央座標
+                    const x1 = parent.x + 60;
+                    const y1 = parent.y + 25;
+                    const x2 = item.x + 60;
+                    const y2 = item.y + 25;
+
+                    line.setAttribute('x1', x1);
+                    line.setAttribute('y1', y1);
+                    line.setAttribute('x2', x2);
+                    line.setAttribute('y2', y2);
+
+                    // 親も自分も訪問済みならパスを光らせる
+                    if (parent.visited && item.visited) {
+                        line.classList.add('path-active');
+                    }
+
+                    svg.appendChild(line);
+                }
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>

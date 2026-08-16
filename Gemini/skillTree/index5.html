@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>聖地曼荼羅：四界スキルツリー</title>
+    <style>
+        :root {
+            --bg: #020205;
+            --rank-s: #ff0055; /* 極：マゼンタ */
+            --rank-a: #ffaa00; /* 大：ゴールド */
+            --rank-b: #00ffcc; /* 中：シアン */
+            --rank-c: #8888aa; /* 並：グレー */
+            --unlocked: #ffffff;
+        }
+
+        body { background: var(--bg); color: white; font-family: serif; margin: 0; overflow: hidden; }
+        
+        #viewport {
+            width: 100vw; height: 100vh;
+            cursor: grab; overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        #tree-container {
+            position: relative; width: 6000px; height: 6000px;
+            transform-origin: center center;
+        }
+
+        svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        
+        /* ランク別ノードデザイン */
+        .node {
+            position: absolute; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+            border-radius: 50%; z-index: 2; transition: transform 0.2s;
+            transform: translate(-50%, -50%); cursor: pointer;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            font-weight: bold; text-shadow: 0 0 5px black;
+        }
+
+        .rank-s { width: 120px; height: 120px; border: 4px double var(--rank-s); font-size: 16px; color: var(--rank-s); }
+        .rank-a { width: 90px; height: 90px; border: 3px solid var(--rank-a); font-size: 13px; color: var(--rank-a); }
+        .rank-b { width: 70px; height: 70px; border: 2px solid var(--rank-b); font-size: 11px; color: var(--rank-b); }
+        .rank-c { width: 50px; height: 50px; border: 1px solid var(--rank-c); font-size: 9px; color: var(--rank-c); }
+
+        .visited { background: var(--unlocked) !important; color: #000 !important; box-shadow: 0 0 20px var(--unlocked); }
+
+        line { stroke: #222; stroke-width: 1; opacity: 0.5; }
+        line.active { stroke: var(--unlocked); stroke-width: 2; opacity: 1; filter: drop-shadow(0 0 5px var(--unlocked)); }
+
+        #ui { position: fixed; top: 20px; left: 20px; z-index: 100; background: rgba(0,0,0,0.8); padding: 15px; border-radius: 8px; border: 1px solid #333; }
+        .legend { display: flex; gap: 10px; margin-top: 10px; font-size: 12px; }
+        .legend div { display: flex; align-items: center; gap: 5px; }
+    </style>
+</head>
+<body>
+
+<div id="ui">
+    <h2 style="margin:0">聖地曼荼羅</h2>
+    <div class="legend">
+        <div><span style="color:var(--rank-s)">●</span>極</div>
+        <div><span style="color:var(--rank-a)">●</span>大</div>
+        <div><span style="color:var(--rank-b)">●</span>中</div>
+        <div><span style="color:var(--rank-c)">●</span>並</div>
+    </div>
+    <p style="font-size:11px; opacity:0.7">Drag: 移動 / Wheel: 拡大縮小 / Click: 習得</p>
+</div>
+
+<div id="viewport">
+    <div id="tree-container">
+        <svg id="svg-layer"></svg>
+    </div>
+</div>
+
+<script>
+const centerX = 3000;
+const centerY = 3000;
+let scale = 0.4;
+
+// ランク別の定義
+const RANKS = { S: 'rank-s', A: 'rank-a', B: 'rank-b', C: 'rank-c' };
+
+// データ生成 (200件)
+const treeData = [
+    { id: 'ise', name: '伊勢神宮', rank: 'S', parent: null, visited: true },
+    { id: 'kamo', name: '賀茂神社', rank: 'A', parent: 'ise' },
+    { id: 'iwa', name: '石清水', rank: 'A', parent: 'ise' },
+    { id: 'kasu', name: '春日大社', rank: 'A', parent: 'ise' },
+    { id: 'hiei', name: '延暦寺', rank: 'A', parent: 'ise' },
+    { id: 'koya', name: '金剛峯寺', rank: 'A', parent: 'ise' }
+];
+
+// ダミーデータ補完 (BランクとCランクを大量生成)
+for(let i=0; i<30; i++) {
+    const pid = treeData[Math.floor(Math.random() * 5) + 1].id;
+    const bid = `b_${i}`;
+    treeData.push({ id: bid, name: `一宮/本山 ${i}`, rank: 'B', parent: pid, visited: false });
+    
+    for(let j=0; j<5; j++) {
+        treeData.push({ id: `c_${i}_${j}`, name: `霊場 ${i}-${j}`, rank: 'C', parent: bid, visited: false });
+    }
+}
+
+const container = document.getElementById('tree-container');
+const svg = document.getElementById('svg-layer');
+
+function init() {
+    // 階層構造の整理
+    const nodesById = {};
+    treeData.forEach(d => {
+        nodesById[d.id] = d;
+        d.children = [];
+    });
+    treeData.forEach(d => {
+        if(d.parent) nodesById[d.parent].children.push(d);
+    });
+
+    // 再帰的に配置計算（重なり防止のため角度を均等分割）
+    function layout(node, startAngle, endAngle, depth) {
+        const radius = depth * 400; 
+        const angle = (startAngle + endAngle) / 2;
+        
+        node.x = centerX + radius * Math.cos(angle);
+        node.y = centerY + radius * Math.sin(angle);
+
+        // 要素作成
+        const div = document.createElement('div');
+        div.className = `node ${RANKS[node.rank]} ${node.visited ? 'visited' : ''}`;
+        div.style.left = `${node.x}px`;
+        div.style.top = `${node.y}px`;
+        div.innerHTML = `<span>${node.name}</span>`;
+        div.onclick = (e) => {
+            e.stopPropagation();
+            node.visited = !node.visited;
+            updateLines();
+            div.classList.toggle('visited');
+        };
+        container.appendChild(div);
+        node.el = div;
+
+        if(node.children.length > 0) {
+            const span = (endAngle - startAngle);
+            node.children.forEach((child, i) => {
+                const s = startAngle + (span * i / node.children.length);
+                const e = startAngle + (span * (i+1) / node.children.length);
+                layout(child, s, e, depth + 1);
+            });
+        }
+    }
+
+    layout(nodesById['ise'], 0, Math.PI * 2, 0);
+    updateLines();
+}
+
+function updateLines() {
+    svg.innerHTML = '';
+    treeData.forEach(node => {
+        if(node.parent) {
+            const p = treeData.find(d => d.id === node.parent);
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', p.x); line.setAttribute('y1', p.y);
+            line.setAttribute('x2', node.x); line.setAttribute('y2', node.y);
+            if(p.visited && node.visited) line.classList.add('active');
+            svg.appendChild(line);
+        }
+    });
+}
+
+// ドラッグ＆ズーム管理
+let isDragging = false;
+let lastX, lastY;
+let posX = 0, posY = 0;
+
+const vp = document.getElementById('viewport');
+const ct = document.getElementById('tree-container');
+
+// 初期位置設定
+ct.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+
+vp.onmousedown = (e) => { isDragging = true; lastX = e.clientX; lastY = e.clientY; vp.style.cursor = 'grabbing'; };
+window.onmouseup = () => { isDragging = false; vp.style.cursor = 'grab'; };
+window.onmousemove = (e) => {
+    if(!isDragging) return;
+    posX += e.clientX - lastX;
+    posY += e.clientY - lastY;
+    lastX = e.clientX; lastY = e.clientY;
+    ct.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+};
+
+vp.onwheel = (e) => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? 0.9 : 1.1;
+    scale *= delta;
+    scale = Math.min(Math.max(scale, 0.05), 2);
+    ct.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+};
+
+init();
+</script>
+</body>
+</html>

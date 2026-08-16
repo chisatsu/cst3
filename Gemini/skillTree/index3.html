@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>八百万スキルツリー - 200霊場踏破録</title>
+    <style>
+        :root {
+            --bg: #050508;
+            --shrine: #ff4500;
+            --temple: #4169e1;
+            --unlocked: #ffd700;
+            --locked: #333;
+        }
+        body { background: var(--bg); color: white; font-family: serif; margin: 0; overflow: hidden; }
+        #controls { position: fixed; top: 10px; left: 10px; z-index: 100; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 5px; }
+        #canvas-container { width: 100vw; height: 100vh; overflow: auto; cursor: grab; background: radial-gradient(circle, #1a1a2e 0%, #050508 100%); }
+        #tree { position: relative; width: 5000px; height: 3000px; transform-origin: 0 0; }
+        .node {
+            position: absolute; width: 140px; padding: 8px; font-size: 11px;
+            background: rgba(10,10,20,0.9); border: 1px solid var(--locked);
+            border-radius: 4px; text-align: center; transition: 0.3s; cursor: pointer; z-index: 2;
+        }
+        .node.shrine { border-left: 4px solid var(--shrine); }
+        .node.temple { border-left: 4px solid var(--temple); }
+        .node.visited { border-color: var(--unlocked); box-shadow: 0 0 10px var(--unlocked); color: var(--unlocked); }
+        .rank-tag { display: block; font-size: 9px; opacity: 0.6; margin-bottom: 3px; }
+        svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        line { stroke: #222; stroke-width: 1.5; }
+        line.active { stroke: var(--unlocked); stroke-width: 2; filter: drop-shadow(0 0 3px var(--unlocked)); }
+    </style>
+</head>
+<body>
+
+<div id="controls">
+    <small>ドラッグで移動 / クリックで習得</small><br>
+    <button onclick="zoom(0.8)">縮小</button>
+    <button onclick="zoom(1.2)">拡大</button>
+</div>
+
+<div id="canvas-container">
+    <div id="tree">
+        <svg id="lines"></svg>
+    </div>
+</div>
+
+<script>
+// --- 大規模データセット（一部抜粋・構造化） ---
+// 実際にはここを200件まで増やせます（二十二社、一宮、主要本山を網羅）
+const rawData = [
+    { id: 'ise', name: '伊勢神宮', rank: '神宮・総本主', type: 'shrine', parent: null },
+    
+    // 二十二社（上七社）
+    { id: 'iwashimizu', name: '石清水八幡宮', rank: '二十二社', type: 'shrine', parent: 'ise' },
+    { id: 'kamo_u', name: '賀茂別雷神社', rank: '二十二社', type: 'shrine', parent: 'ise' },
+    { id: 'kamo_s', name: '賀茂御祖神社', rank: '二十二社', type: 'shrine', parent: 'ise' },
+    { id: 'matsunoo', name: '松尾大社', rank: '二十二社', type: 'shrine', parent: 'ise' },
+    { id: 'hirano', name: '平野神社', rank: '二十二社', type: 'shrine', parent: 'ise' },
+    { id: 'fushimi', name: '伏見稲荷大社', rank: '二十二社', type: 'shrine', parent: 'ise' },
+    { id: 'kasuga', name: '春日大社', rank: '二十二社', type: 'shrine', parent: 'ise' },
+
+    // 仏教・総本山系（伊勢から特別分岐）
+    { id: 'hieizan', name: '比叡山 延暦寺', rank: '天台宗総本山', type: 'temple', parent: 'ise' },
+    { id: 'koyasan', name: '高野山 金剛峯寺', rank: '真言宗総本山', type: 'temple', parent: 'ise' },
+    { id: 'chionin', name: '知恩院', rank: '浄土宗総本山', type: 'temple', parent: 'hieizan' },
+    { id: 'hongwanji', name: '西本願寺', rank: '浄土真宗本願寺派', type: 'temple', parent: 'hieizan' },
+
+    // 一宮（代表的なもの）
+    { id: 'kashima', name: '鹿島神宮', rank: '常陸国一宮', type: 'shrine', parent: 'kasuga' },
+    { id: 'katori', name: '香取神宮', rank: '下総国一宮', type: 'shrine', parent: 'kasuga' },
+    { id: 'atsuta', name: '熱田神宮', rank: '尾張国一宮', type: 'shrine', parent: 'iwashimizu' },
+    { id: 'izumo', name: '出雲大社', rank: '出雲国一宮', type: 'shrine', parent: 'ise' },
+    { id: 'sumiyoshi', name: '住吉大社', rank: '摂津国一宮', type: 'shrine', parent: 'iwashimizu' }
+    // ...ここに100〜200件のデータを追加可能
+];
+
+// 200件のダミーデータを自動生成（一宮などのリスト用）
+for(let i=1; i<=180; i++) {
+    const p = rawData[Math.floor(Math.random() * 10) + 1].id;
+    rawData.push({
+        id: `auto_${i}`,
+        name: `地方霊場 第${i}番`,
+        rank: '地方一宮/本山',
+        type: i % 3 === 0 ? 'temple' : 'shrine',
+        parent: p,
+        visited: false
+    });
+}
+
+const treeEl = document.getElementById('tree');
+const svgEl = document.getElementById('lines');
+let currentZoom = 1;
+
+// 階層に基づいた自動レイアウト計算
+function layoutNodes() {
+    const levels = {};
+    const nodesById = {};
+    
+    rawData.forEach(n => {
+        nodesById[n.id] = n;
+        n.depth = getDepth(n);
+        if(!levels[n.depth]) levels[n.depth] = [];
+        levels[n.depth].push(n);
+    });
+
+    Object.keys(levels).forEach(depth => {
+        levels[depth].forEach((n, index) => {
+            n.x = depth * 300 + 100;
+            n.y = index * 80 + 100;
+            createNodeEl(n);
+        });
+    });
+}
+
+function getDepth(node) {
+    if(!node.parent) return 0;
+    return 1 + getDepth(rawData.find(n => n.id === node.parent));
+}
+
+function createNodeEl(node) {
+    const div = document.createElement('div');
+    div.className = `node ${node.type} ${node.visited ? 'visited' : ''}`;
+    div.id = `node-${node.id}`;
+    div.style.left = `${node.x}px`;
+    div.style.top = `${node.y}px`;
+    div.innerHTML = `<span class="rank-tag">${node.rank}</span>${node.name}`;
+    div.onclick = () => {
+        node.visited = !node.visited;
+        renderLinks();
+        div.classList.toggle('visited');
+    };
+    treeEl.appendChild(div);
+}
+
+function renderLinks() {
+    svgEl.innerHTML = '';
+    rawData.forEach(n => {
+        if(n.parent) {
+            const p = rawData.find(d => d.id === n.parent);
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', p.x + 140);
+            line.setAttribute('y1', p.y + 20);
+            line.setAttribute('x2', n.x);
+            line.setAttribute('y2', n.y + 20);
+            if(p.visited && n.visited) line.setAttribute('class', 'active');
+            svgEl.appendChild(line);
+        }
+    });
+}
+
+function zoom(val) {
+    currentZoom *= val;
+    treeEl.style.transform = `scale(${currentZoom})`;
+}
+
+layoutNodes();
+renderLinks();
+</script>
+</body>
+</html>

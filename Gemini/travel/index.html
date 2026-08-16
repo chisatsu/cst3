@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>旅行記タイムライン</title>
+  <style>
+    :root {
+      --primary-color: #3182ce;
+      --bg-color: #f7fafc;
+      --card-bg: #ffffff;
+      --text-main: #2d3748;
+      --text-sub: #718096;
+      --line-color: #e2e8f0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      padding: 24px 16px;
+    }
+
+    .timeline-container {
+      max-width: 600px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    /* 中央を通る縦線 */
+    .timeline-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 79px;
+      width: 2px;
+      background-color: var(--line-color);
+      z-index: 1;
+    }
+
+    .timeline-item {
+      display: flex;
+      margin-bottom: 24px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .time-badge {
+      width: 70px;
+      flex-shrink: 0;
+      font-weight: bold;
+      font-size: 1.2rem;
+      color: var(--primary-color);
+      text-align: right;
+      padding-right: 16px;
+      padding-top: 4px;
+    }
+
+    .timeline-node {
+      width: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding-top: 8px;
+    }
+
+    .node-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: var(--primary-color);
+      border: 3px solid #fff;
+      box-shadow: 0 0 0 1px var(--line-color);
+    }
+
+    .card {
+      flex-grow: 1;
+      margin-left: 12px;
+      background: var(--card-bg);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+      border: 1px solid var(--line-color);
+    }
+
+    .card-image {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      background-color: #edf2f7;
+      display: block;
+    }
+
+    .card-content {
+      padding: 16px;
+    }
+
+    .location-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .location-memo {
+      font-size: 0.875rem;
+      color: var(--text-sub);
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+
+    .map-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .map-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="timeline-container" id="timeline"></div>
+
+  <script>
+    // 旅行データの配列（データソース）
+    const tripLog = [
+      {
+        time: "09:00",
+        name: "新大阪駅",
+        placeId: "ChIJ7f2231bmAGARy3k0C4d54kY",
+        // APIキーなしでプレースホルダーまたは特定の画像URLを指定する場合
+        imageUrl: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=600&q=80",
+        memo: "新幹線に乗車。まずは朝食のお弁当を購入。"
+      },
+      {
+        time: "11:30",
+        name: "金沢駅（鼓門）",
+        placeId: "ChIJW8mGfX--A18RzUjC4C8wX_Q",
+        imageUrl: "https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=600&q=80",
+        memo: "金沢に到着。鼓門の前で記念撮影。"
+      },
+      {
+        time: "12:45",
+        name: "近江町市場",
+        placeId: "ChIJJTFQy3i-A18Rk3-8qU8p8bA",
+        imageUrl: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=600&q=80",
+        memo: "海鮮丼を堪能。ネタが新鮮で大満足。"
+      }
+    ];
+
+    // HTMLの動的生成
+    const container = document.getElementById('timeline');
+
+    tripLog.forEach(item => {
+      // プレースIDからGoogleマップを開くURLを生成
+      const mapUrl = `https://www.google.com/maps/search/?api=1&query=Google&query_place_id=${item.placeId}`;
+
+      const itemHtml = `
+        <div class="timeline-item">
+          <div class="time-badge">${item.time}</div>
+          <div class="timeline-node"><div class="node-dot"></div></div>
+          <div class="card">
+            ${item.imageUrl ? `<img src="${item.imageUrl}" alt="${item.name}" class="card-image" />` : ''}
+            <div class="card-content">
+              <div class="location-name">${item.name}</div>
+              ${item.memo ? `<div class="location-memo">${item.memo}</div>` : ''}
+              <a href="${mapUrl}" target="_blank" rel="noopener noreferrer" class="map-link">
+                📍 Googleマップで開く
+              </a>
+            </div>
+          </div>
+        </div>
+      `;
+      container.insertAdjacentHTML('beforeend', itemHtml);
+    });
+  </script>
+</body>
+</html>
